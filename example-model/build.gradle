@@ -3,13 +3,41 @@ buildscript {
         mavenCentral()
         maven {url 'https://commondatastorage.googleapis.com/maven-repository/'}
     }
+    dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.7.0'
+    }
 }
 
 apply plugin: 'java'
+apply plugin: 'com.google.protobuf'
 
 repositories {
     mavenCentral()
     maven {url 'https://commondatastorage.googleapis.com/maven-repository/'}
+}
+
+configurations {
+    provided
+    providedTest
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:2.6.1'
+    }
+}
+
+sourceSets {
+    main {
+        proto {
+            srcDir 'src/main/protobuf'
+        }
+        compileClasspath += configurations.provided
+        java.srcDirs += 'build/generated/source/proto/main'
+    }
+    test {
+        compileClasspath += configurations.providedTest
+    }
 }
 
 dependencies {

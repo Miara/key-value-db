@@ -1,0 +1,13 @@
+option java_package = "com.example.myapplication";
+option java_outer_classname = "Message";
+
+message CommunicationMessage {
+    required bytes id = 1;
+    required string message = 2;
+    required string conversation_id = 3;
+    required int64 created_at_millis = 4;
+}
+
+message Ids {
+    repeated string ids = 1;
+}

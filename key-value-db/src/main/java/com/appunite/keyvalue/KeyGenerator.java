@@ -120,5 +120,14 @@ public class KeyGenerator {
             conversationIndex.put(SEPARATOR);
             return this;
         }
+
+        @Nonnull
+        public Builder addField(@Nonnull byte[] fieldName, @Nonnull String value) {
+            conversationIndex.put(fieldName);
+            conversationIndex.put(SEPARATOR);
+            conversationIndex.put(value.getBytes());
+            conversationIndex.put(SEPARATOR);
+            return this;
+        }
     }
 }
