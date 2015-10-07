@@ -16,11 +16,13 @@
 
 package com.appunite.example.snappy;
 
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 
@@ -118,7 +120,14 @@ public class DatabaseSql implements Database {
     public DatabaseSql(Context context, String name) {
         final OpenHelper openHelper = new OpenHelper(context, name);
         writableDatabase = openHelper.getWritableDatabase();
-        writableDatabase.enableWriteAheadLogging();
+        enableWriteAheadLoggingIfSupported();
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void enableWriteAheadLoggingIfSupported() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            writableDatabase.enableWriteAheadLogging();
+        }
     }
 
     @Override
