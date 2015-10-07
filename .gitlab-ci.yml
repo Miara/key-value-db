@@ -1,6 +1,6 @@
 
 before_script:
-  - /opt/tools/android-accept-licenses.sh 'android update sdk --all --no-ui --filter extra-android-m2repository,extra-google-m2repository,build-tools-23.0.0,android-23'
+  - /opt/tools/android-accept-licenses.sh 'android update sdk --all --no-ui --filter extra-android-m2repository,extra-google-m2repository,build-tools-23.0.1,android-23'
   - echo "org.gradle.jvmargs=-XX:MaxPermSize=2g" > gradle.properties
 
 build:
