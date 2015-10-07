@@ -18,6 +18,7 @@ package com.appunite.example.snappy;
 
 import android.support.annotation.NonNull;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.LargeTest;
 import android.util.Log;
 
 import com.appunite.keyvalue.IdGenerator;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
 
+@LargeTest
 public class DatabaseSpeedTest extends AndroidTestCase {
 
     private static final String TAG = DatabaseSpeedTest.class.getCanonicalName();

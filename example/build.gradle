@@ -59,6 +59,8 @@ android {
         useJack false
         testHandleProfiling true
         testFunctionalTest true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArgument 'notAnnotation', 'android.test.suitebuilder.annotation.LargeTest'
     }
 
     dexOptions {

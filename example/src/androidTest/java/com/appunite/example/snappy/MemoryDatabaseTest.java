@@ -16,6 +16,9 @@
 
 package com.appunite.example.snappy;
 
+import android.test.suitebuilder.annotation.MediumTest;
+
+@MediumTest
 public class MemoryDatabaseTest extends AbsDatabaseTest {
     @Override
     protected int getDatabase() {
