@@ -105,7 +105,7 @@ public class DatabaseSnappy implements Database {
     private ByteString getMessageConversationIndex(@Nonnull Message.CommunicationMessage message) {
         return keyGenerator.startIndex(MESSAGE)
                 .addField(CONVERSATION, message.getConversationId())
-                .addFieldReverted(CREATED_AT, message.getCreatedAtMillis())
+                .addField(CREATED_AT, message.getCreatedAtMillis())
                 .buildIndex(message.getId());
     }
 
