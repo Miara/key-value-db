@@ -24,6 +24,7 @@ import android.test.suitebuilder.annotation.MediumTest;
 import com.appunite.keyvalue.KeyValue;
 import com.google.protobuf.ByteString;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +47,11 @@ public class KeyValueSnappyTest {
     public void setUp() throws Exception {
         final Context targetContext = InstrumentationRegistry.getTargetContext();
         keyValue = new KeyValueSnappy(targetContext, String.format(Locale.US, "Db:%d.db", new Random().nextLong()));
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        keyValue.close();
     }
 
     @Test
@@ -130,8 +136,4 @@ public class KeyValueSnappyTest {
         assert_().that(keys2.nextToken()).isNull();
     }
 
-    @Test
-    public void testCanClose_withoutIssue() throws Exception {
-        keyValue.close();
-    }
 }
