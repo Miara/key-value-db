@@ -61,7 +61,6 @@ public class DatabaseSql implements Database {
         private static final KeyGenerator keyGenerator = new KeyGenerator();
 
         public static final byte[] MESSAGE = "message".getBytes();
-        public static final byte[] CONVERSATION = "conversation".getBytes();
         public static final byte[] CREATED_AT = "created_at".getBytes();
 
         @Nonnull
