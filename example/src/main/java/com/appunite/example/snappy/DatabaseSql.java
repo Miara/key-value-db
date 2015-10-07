@@ -40,6 +40,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class DatabaseSql implements Database {
+
+    @Nonnull
     private final SQLiteDatabase writableDatabase;
 
     static class FeedEntry implements BaseColumns {
@@ -118,7 +120,7 @@ public class DatabaseSql implements Database {
         }
     }
 
-    public DatabaseSql(Context context, String name) {
+    public DatabaseSql(@Nonnull Context context, @Nonnull String name) {
         final OpenHelper openHelper = new OpenHelper(context, name);
         writableDatabase = openHelper.getWritableDatabase();
         enableWriteAheadLoggingIfSupported();

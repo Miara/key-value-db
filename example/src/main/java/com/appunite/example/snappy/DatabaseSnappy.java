@@ -31,9 +31,10 @@ import javax.annotation.Nullable;
 
 public class DatabaseSnappy implements Database {
 
-    private KeyValue keyValue;
+    @Nonnull
+    private final KeyValue keyValue;
 
-    public DatabaseSnappy(KeyValue keyValue) {
+    public DatabaseSnappy(@Nonnull KeyValue keyValue) {
         this.keyValue = keyValue;
     }
 

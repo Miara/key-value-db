@@ -36,10 +36,10 @@ import io.realm.RealmResults;
 
 public class DatabaseRealm implements Database {
 
-
+    @Nonnull
     private final Realm realm;
 
-    public DatabaseRealm(Context context, String name) {
+    public DatabaseRealm(@Nonnull Context context, @Nonnull String name) {
         realm = Realm.getInstance(new RealmConfiguration.Builder(context).name(name).build());
     }
 
