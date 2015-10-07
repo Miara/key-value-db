@@ -16,7 +16,8 @@
 
 package com.appunite.example.snappy;
 
-import android.test.AndroidTestCase;
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
 
 import com.appunite.keyvalue.IdGenerator;
 import com.appunite.keyvalue.NotFoundException;
@@ -25,23 +26,29 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.ByteString;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.List;
 import java.util.UUID;
 
-public abstract class AbsDatabaseTest extends AndroidTestCase {
+import static com.google.common.truth.Truth.assert_;
+
+public abstract class AbsDatabaseTest {
 
     private final IdGenerator idGenerator = new IdGenerator();
     private Database database;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-
-        database = DatabaseProvider.provide(getContext(), getDatabase(), UUID.randomUUID().toString());
+        final Context targetContext = InstrumentationRegistry.getTargetContext();
+        database = DatabaseProvider.provide(targetContext, getDatabase(), UUID.randomUUID().toString());
     }
 
     protected abstract int getDatabase();
 
+    @Test
     public void testAfterWritingElementToDb_itCanBeRetrieved() throws Exception {
         final ByteString id = ByteString.copyFrom("x", Charsets.UTF_8.name());
         final Message.CommunicationMessage message = Message.CommunicationMessage.newBuilder()
@@ -55,12 +62,13 @@ public abstract class AbsDatabaseTest extends AndroidTestCase {
 
         final Message.CommunicationMessage retMessage = database.getMessage(id);
 
-        assertEquals(id, retMessage.getId());
-        assertEquals("conversationId", retMessage.getConversationId());
-        assertEquals("message", retMessage.getMessage());
-        assertEquals(123, retMessage.getCreatedAtMillis());
+        assert_().that(retMessage.getId()).isEqualTo(id);
+        assert_().that(retMessage.getConversationId()).isEqualTo("conversationId");
+        assert_().that(retMessage.getMessage()).isEqualTo("message");
+        assert_().that(retMessage.getCreatedAtMillis()).isEqualTo(123);
     }
 
+    @Test
     public void testWhenThereAreSeveralConversations_getMessagesOnlyFromOne() throws Exception {
         database.addMessage(Message.CommunicationMessage.newBuilder()
                 .setId(idGenerator.newId())
@@ -84,11 +92,12 @@ public abstract class AbsDatabaseTest extends AndroidTestCase {
         final List<Message.CommunicationMessage> messages = database.getMessageResult("conversation2", null, 100)
                 .getMessages();
 
-        assertEquals(1, messages.size());
-        assertEquals("conversation2", messages.get(0).getConversationId());
-        assertEquals("correct", messages.get(0).getMessage());
+        assert_().that(messages.size()).isEqualTo(1);
+        assert_().that(messages.get(0).getConversationId()).isEqualTo("conversation2");
+        assert_().that(messages.get(0).getMessage()).isEqualTo("correct");
     }
 
+    @Test
     public void testWhenThereAreTwoMessagesWithSameId_returnBooth() throws Exception {
         database.addMessage(Message.CommunicationMessage.newBuilder()
                 .setId(idGenerator.newId())
@@ -106,15 +115,16 @@ public abstract class AbsDatabaseTest extends AndroidTestCase {
         final Database.MessageResult messages1 = database.getMessageResult("conversation2", null, 1);
         final Database.MessageResult messages2 = database.getMessageResult("conversation2", messages1, 1);
 
-        assertEquals(1, messages1.getMessages().size());
-        assertEquals(1, messages2.getMessages().size());
+        assert_().that(messages1.getMessages().size()).isEqualTo(1);
+        assert_().that(messages2.getMessages().size()).isEqualTo(1);
 
         final String firstTitle = messages1.getMessages().get(0).getMessage();
         final String secondTitle = messages2.getMessages().get(0).getMessage();
         final ImmutableSet<String> test = ImmutableSet.of(firstTitle, secondTitle);
-        assertEquals(ImmutableSet.of("message1", "message2"), test);
+        assert_().that((Iterable<String>)test).isEqualTo(ImmutableSet.of("message1", "message2"));
     }
 
+    @Test
     public void testWhenRetrieveMessages_returnAllInOrder() throws Exception {
         database.addMessage(Message.CommunicationMessage.newBuilder()
                 .setId(idGenerator.newId())
@@ -138,12 +148,13 @@ public abstract class AbsDatabaseTest extends AndroidTestCase {
         final List<Message.CommunicationMessage> messages = database
                 .getMessageResult("conversation2", null, 100)
                 .getMessages();
-        assertEquals(3, messages.size());
-        assertEquals(123, messages.get(0).getCreatedAtMillis());
-        assertEquals(124, messages.get(1).getCreatedAtMillis());
-        assertEquals(125, messages.get(2).getCreatedAtMillis());
+        assert_().that(messages.size()).isEqualTo(3);
+        assert_().that(messages.get(0).getCreatedAtMillis()).isEqualTo(123);
+        assert_().that(messages.get(1).getCreatedAtMillis()).isEqualTo(124);
+        assert_().that(messages.get(2).getCreatedAtMillis()).isEqualTo(125);
     }
 
+    @Test
     public void testWhenRetrieveMessagesPartially_returnAllInOrder() throws Exception {
         database.addMessage(Message.CommunicationMessage.newBuilder()
                 .setId(idGenerator.newId())
@@ -166,19 +177,20 @@ public abstract class AbsDatabaseTest extends AndroidTestCase {
         final Database.MessageResult messages = database
                 .getMessageResult("conversation2", null, 2);
 
-        assertEquals(2, messages.getMessages().size());
-        assertEquals(123, messages.getMessages().get(0).getCreatedAtMillis());
-        assertEquals(124, messages.getMessages().get(1).getCreatedAtMillis());
-        assertFalse(messages.isLast());
+        assert_().that(messages.getMessages().size()).isEqualTo(2);
+        assert_().that(messages.getMessages().get(0).getCreatedAtMillis()).isEqualTo(123);
+        assert_().that(messages.getMessages().get(1).getCreatedAtMillis()).isEqualTo(124);
+        assert_().that(messages.isLast()).isFalse();
 
 
         final Database.MessageResult messages2 = database
                 .getMessageResult("conversation2", messages, 2);
-        assertEquals(1, messages2.getMessages().size());
-        assertEquals(125, messages2.getMessages().get(0).getCreatedAtMillis());
-        assertTrue(messages2.isLast());
+        assert_().that(messages2.getMessages().size()).isEqualTo(1);
+        assert_().that(messages2.getMessages().get(0).getCreatedAtMillis()).isEqualTo(125);
+        assert_().that(messages.isLast()).isTrue();
     }
 
+    @Test
     public void testWhenThereAreTwoMessagesWithSameTimestamp_returnBooth() throws Exception {
         database.addMessage(Message.CommunicationMessage.newBuilder()
                 .setId(idGenerator.newId())
@@ -195,9 +207,10 @@ public abstract class AbsDatabaseTest extends AndroidTestCase {
 
         final List<Message.CommunicationMessage> messages = database.getMessageResult("conversation2", null, 100).getMessages();
 
-        assertEquals(2, messages.size());
+        assert_().that(messages).hasSize(2);
     }
 
+    @Test
     public void testAfterUpdateMessage_returnOne() throws Exception {
         final ByteString id = idGenerator.newId();
         final Message.CommunicationMessage message = Message.CommunicationMessage.newBuilder()
@@ -217,22 +230,19 @@ public abstract class AbsDatabaseTest extends AndroidTestCase {
                 .getMessageResult("conversation2", null, 100)
                 .getMessages();
 
-        assertEquals(1, messages.size());
-        assertEquals("new", messages.get(0).getMessage());
-        assertEquals(124, messages.get(0).getCreatedAtMillis());
+        assert_().that(messages).hasSize(1);
+        assert_().that(messages.get(0).getMessage()).isEqualTo("new");
+        assert_().that(messages.get(0).getCreatedAtMillis()).isEqualTo(124);
     }
 
+    @Test(expected = NotFoundException.class)
     public void testAfterGettingNotExistingMessage_throwsException() throws Exception {
-        try {
-            database.getMessage(ByteString.copyFrom("x", Charsets.UTF_8.name()));
-            fail("Not thrown");
-        } catch (NotFoundException ignore) {
-        }
+        database.getMessage(ByteString.copyFrom("x", Charsets.UTF_8.name()));
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception {
         database.close();
-        super.tearDown();
     }
+
 }

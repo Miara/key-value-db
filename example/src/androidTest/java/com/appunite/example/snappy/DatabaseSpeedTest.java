@@ -16,8 +16,10 @@
 
 package com.appunite.example.snappy;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
-import android.test.AndroidTestCase;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.util.Log;
 
@@ -26,22 +28,23 @@ import com.example.myapplication.Message;
 import com.google.common.base.Stopwatch;
 import com.snappydb.SnappydbException;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
 
+import static com.google.common.truth.Truth.assert_;
+
+@RunWith(AndroidJUnit4.class)
 @LargeTest
-public class DatabaseSpeedTest extends AndroidTestCase {
+public class DatabaseSpeedTest {
 
     private static final String TAG = DatabaseSpeedTest.class.getCanonicalName();
     private final IdGenerator idGenerator = new IdGenerator();
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-
+    @Test
     public void testSpeed() throws Exception {
         runSpeedTest("snappy", 0, 500, 100);
         runSpeedTest("sqlite", 1, 500, 100);
@@ -59,10 +62,12 @@ public class DatabaseSpeedTest extends AndroidTestCase {
         runSpeedTest("memory", 3, 10000, 100);
     }
 
+    @Test
     public void testDeserialize() throws Exception {
         testSerialize(10000);
     }
 
+    @Test
     private void testSerialize(int sampleSize) throws com.google.protobuf.InvalidProtocolBufferException {
         final ArrayList<Message.CommunicationMessage> messages = prepareMessages("conversation1", sampleSize);
 
@@ -84,11 +89,12 @@ public class DatabaseSpeedTest extends AndroidTestCase {
         }
         Log.i(TAG, String.format("testSpeed - deserialize %d - %s", sampleSize, stopwatch2.toString()));
 
-        assertEquals(messages.size(), out2.size());
+        assert_().that(messages.size()).isEqualTo(out2.size());
     }
 
     private void runSpeedTest(String dbName, int databaseType, int writeSample, int readSample) throws SnappydbException {
-        final Database database = DatabaseProvider.provide(getContext(), databaseType, UUID.randomUUID().toString());
+        final Context targetContext = InstrumentationRegistry.getTargetContext();
+        final Database database = DatabaseProvider.provide(targetContext, databaseType, UUID.randomUUID().toString());
         try {
             addSomeNotImportantElements(database, writeSample);
 
@@ -120,16 +126,15 @@ public class DatabaseSpeedTest extends AndroidTestCase {
             final Stopwatch stopwatch3 = Stopwatch.createStarted();
             final Database.MessageResult first = database.getMessageResult("conversation10", null, 100);
             Log.i(TAG, String.format("testSpeed - %s read first %d: %s", dbName, readSample, stopwatch3.toString()));
-            assertEquals(100, first.getMessages().size());
-            assertNotNull(first.getNextToken());
+            assert_().that(first.getMessages()).hasSize(100);
+            assert_().that(first.getNextToken()).isNotNull();
 
             System.gc();
             final Stopwatch stopwatch4 = Stopwatch.createStarted();
             final Database.MessageResult second = database.getMessageResult("conversation10", first, 100);
             Log.i(TAG, String.format("testSpeed - %s read second %d: %s", dbName, readSample, stopwatch4.toString()));
-            assertNotNull(first.getNextToken());
-            assertEquals(100, second.getMessages().size());
-            assertNotNull(second.getNextToken());
+            assert_().that(second.getMessages()).hasSize(100);
+            assert_().that(second.getNextToken()).isNotNull();
         } finally {
             database.close();
         }

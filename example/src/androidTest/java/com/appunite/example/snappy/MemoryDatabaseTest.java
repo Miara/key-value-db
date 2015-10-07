@@ -16,8 +16,12 @@
 
 package com.appunite.example.snappy;
 
+import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.MediumTest;
 
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class MemoryDatabaseTest extends AbsDatabaseTest {
     @Override

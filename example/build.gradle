@@ -16,6 +16,11 @@ repositories {
     }
 }
 
+configurations.all {
+    resolutionStrategy.force 'com.android.support:support-annotations:23.0.1'
+    resolutionStrategy.force 'com.google.guava:guava:18.0'
+}
+
 dependencies {
 
     // Projects
@@ -32,6 +37,10 @@ dependencies {
     compile 'com.jakewharton:butterknife:4.0.1'
     compile 'io.realm:realm-android:0.83.0-SNAPSHOT'
     compile 'com.google.guava:guava:18.0'
+
+    androidTestCompile 'com.google.truth:truth:0.25'
+    androidTestCompile 'com.android.support.test:runner:0.3'
+    androidTestCompile 'com.android.support.test:rules:0.3'
 }
 
 

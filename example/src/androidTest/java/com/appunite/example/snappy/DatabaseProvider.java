@@ -18,9 +18,6 @@ package com.appunite.example.snappy;
 
 import android.content.Context;
 
-import com.appunite.example.snappy.DatabaseRealm;
-import com.appunite.example.snappy.DatabaseSnappy;
-import com.appunite.example.snappy.DatabaseSql;
 import com.appunite.keyvalue.KeyValueMemory;
 import com.appunite.keyvalue.driver.snappy.KeyValueSnappy;
 
