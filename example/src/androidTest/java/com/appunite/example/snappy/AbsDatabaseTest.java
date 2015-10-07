@@ -187,7 +187,7 @@ public abstract class AbsDatabaseTest {
                 .getMessageResult("conversation2", messages, 2);
         assert_().that(messages2.getMessages().size()).isEqualTo(1);
         assert_().that(messages2.getMessages().get(0).getCreatedAtMillis()).isEqualTo(125);
-        assert_().that(messages.isLast()).isTrue();
+        assert_().that(messages2.isLast()).isTrue();
     }
 
     @Test
