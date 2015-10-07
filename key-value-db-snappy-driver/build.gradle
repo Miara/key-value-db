@@ -19,13 +19,11 @@ dependencies {
 
     compile "javax.annotation:javax.annotation-api:1.2"
     compile "com.google.code.findbugs:jsr305:2.0.1"
+    compile 'com.snappydb:snappydb-lib:0.5.2'
 
-    testCompile 'junit:junit:4.11'
-    testCompile 'org.mockito:mockito-all:1.9.5'
-    testCompile 'com.google.truth:truth:0.25'
-
-    androidTestCompile 'com.android.support.test:runner:0.2'
-    androidTestCompile 'com.android.support.test:rules:0.2'
+    androidTestCompile 'com.google.truth:truth:0.25'
+    androidTestCompile 'com.android.support.test:runner:0.3'
+    androidTestCompile 'com.android.support.test:rules:0.3'
 
 }
 
@@ -34,7 +32,7 @@ android {
     compileSdkVersion 22
 
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 9
         targetSdkVersion 22
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
