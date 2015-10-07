@@ -59,13 +59,9 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 23
-        renderscriptTargetApi 21
-        renderscriptSupportModeEnabled true
         versionCode 1
         versionName "0.0.1"
         applicationId "com.appunite.example.snappy"
-        multiDexEnabled = true
-        useJack false
         testHandleProfiling true
         testFunctionalTest true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -80,21 +76,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
-    }
-
-    productFlavors {
-        // Define separate dev and prod product flavors.
-        dev {
-            // dev utilizes minSDKVersion = 21 to allow the Android gradle plugin
-            // to pre-dex each module and produce an APK that can be tested on
-            // Android Lollipop without time consuming dex merging processes.
-            minSdkVersion 21
-        }
-
-        prod {
-            // The actual minSdkVersion for the application.
-            minSdkVersion 15
-        }
     }
 
     lintOptions {
