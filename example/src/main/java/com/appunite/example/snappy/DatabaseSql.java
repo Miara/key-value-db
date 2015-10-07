@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class DatabaseSql implements Database {
     private final SQLiteDatabase writableDatabase;
@@ -130,8 +131,9 @@ public class DatabaseSql implements Database {
         }
     }
 
+    @Nonnull
     @Override
-    public MessageResult getMessageResult(String conversationId, MessageResult messageResultOrNull, int batch) {
+    public MessageResult getMessageResult(@Nonnull String conversationId, @Nullable MessageResult messageResultOrNull, int batch) {
         if (messageResultOrNull != null) {
             if (messageResultOrNull.getNextToken() == null) {
                 throw new IllegalArgumentException("Can not query for finished result set");
@@ -171,8 +173,9 @@ public class DatabaseSql implements Database {
         }
     }
 
+    @Nonnull
     @Override
-    public Message.CommunicationMessage getMessage(ByteString id) throws NotFoundException {
+    public Message.CommunicationMessage getMessage(@Nonnull ByteString id) throws NotFoundException {
         final Cursor query = writableDatabase.query(FeedEntry.TABLE_NAME,
                 FeedEntry.COLUMNS,
                 FeedEntry.COLUMN_NAME_ENTRY_ID + " = ?",
@@ -189,13 +192,13 @@ public class DatabaseSql implements Database {
     }
 
     @Override
-    public void addMessage(Message.CommunicationMessage message) {
+    public void addMessage(@Nonnull Message.CommunicationMessage message) {
         final ContentValues values = FeedEntry.createContentValues(message);
         writableDatabase.insertOrThrow(FeedEntry.TABLE_NAME, null, values);
     }
 
     @Override
-    public void updateMessage(Message.CommunicationMessage message) {
+    public void updateMessage(@Nonnull Message.CommunicationMessage message) {
         final ContentValues values = FeedEntry.createContentValues(message);
         writableDatabase.update(FeedEntry.TABLE_NAME, values, FeedEntry.COLUMN_NAME_ENTRY_ID + " = ?",
                 new String[]{ByteUtils.toString(message.getId())});

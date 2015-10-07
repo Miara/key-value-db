@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class DatabaseSnappy implements Database {
 
@@ -36,8 +37,9 @@ public class DatabaseSnappy implements Database {
         this.keyValue = keyValue;
     }
 
+    @Nonnull
     @Override
-    public MessageResult getMessageResult(String conversationId, MessageResult messageResultOrNull, int batch) {
+    public MessageResult getMessageResult(@Nonnull String conversationId, @Nullable MessageResult messageResultOrNull, int batch) {
         if (messageResultOrNull != null) {
             if (messageResultOrNull.getNextToken() == null) {
                 throw new IllegalArgumentException("Result does not have more messages");
@@ -59,8 +61,9 @@ public class DatabaseSnappy implements Database {
         return new MessageResult(objects, iterator.nextToken());
     }
 
+    @Nonnull
     @Override
-    public Message.CommunicationMessage getMessage(ByteString id) throws NotFoundException {
+    public Message.CommunicationMessage getMessage(@Nonnull ByteString id) throws NotFoundException {
         try {
             return Message.CommunicationMessage.parseFrom(keyValue.getBytes(getMessageKey(id)));
         } catch (InvalidProtocolBufferException e) {
@@ -69,7 +72,7 @@ public class DatabaseSnappy implements Database {
     }
 
     @Override
-    public void addMessage(Message.CommunicationMessage message) {
+    public void addMessage(@Nonnull Message.CommunicationMessage message) {
         final ByteString messageKey = getMessageKey(message.getId());
         final ByteString key = getMessageConversationIndex(message);
         keyValue.put(key, messageKey);
@@ -77,7 +80,7 @@ public class DatabaseSnappy implements Database {
     }
 
     @Override
-    public void updateMessage(Message.CommunicationMessage message) {
+    public void updateMessage(@Nonnull Message.CommunicationMessage message) {
         final Message.CommunicationMessage oldMessage;
         try {
             oldMessage = getMessage(message.getId());

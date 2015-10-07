@@ -27,6 +27,9 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
@@ -40,17 +43,21 @@ public class DatabaseRealm implements Database {
         realm = Realm.getInstance(new RealmConfiguration.Builder(context).name(name).build());
     }
 
+    @Nonnull
     @Override
-    public MessageResult getMessageResult(String conversationId, MessageResult messageResultOrNull, int batch) {
+    public MessageResult getMessageResult(@Nonnull String conversationId,
+                                          @Nullable MessageResult messageResultOrNull,
+                                          int batch) {
         if (messageResultOrNull != null) {
             if (messageResultOrNull.getNextToken() == null) {
                 throw new RuntimeException("No more data");
             }
         }
-        RealmResults<RealmMessage> result = realm.where(RealmMessage.class)
+        final RealmResults<RealmMessage> result = realm.where(RealmMessage.class)
                 .equalTo("conversationId", conversationId)  // implicit AND
                 .findAllSorted("createdAt");
 
+        @SuppressWarnings("ConstantConditions")
         int start = messageResultOrNull == null ? 0 : messageResultOrNull.<Integer>getNextToken();
 
         final List<Message.CommunicationMessage> messages = new ArrayList<>();
@@ -70,8 +77,9 @@ public class DatabaseRealm implements Database {
         return new MessageResult(messages, null);
     }
 
+    @Nonnull
     @Override
-    public Message.CommunicationMessage getMessage(ByteString id) throws NotFoundException {
+    public Message.CommunicationMessage getMessage(@Nonnull ByteString id) throws NotFoundException {
         final RealmMessage message = realm.where(RealmMessage.class)
                 .equalTo("id", ByteUtils.toString(id))
                 .findFirst();
@@ -86,7 +94,7 @@ public class DatabaseRealm implements Database {
     }
 
     @Override
-    public void addMessage(Message.CommunicationMessage message) {
+    public void addMessage(@Nonnull Message.CommunicationMessage message) {
         realm.beginTransaction();
         final RealmMessage realmMessage = new RealmMessage();
         realmMessage.setData(message.toByteArray());
@@ -98,7 +106,7 @@ public class DatabaseRealm implements Database {
     }
 
     @Override
-    public void updateMessage(Message.CommunicationMessage message) {
+    public void updateMessage(@Nonnull Message.CommunicationMessage message) {
         realm.beginTransaction();
         final RealmMessage realmMessage = new RealmMessage();
         realmMessage.setData(message.toByteArray());

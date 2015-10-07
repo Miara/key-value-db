@@ -22,13 +22,19 @@ import com.google.protobuf.ByteString;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public interface Database {
 
     class MessageResult {
+        @Nonnull
         private final List<CommunicationMessage> messages;
+        @Nullable
         private final Object nextToken;
 
-        public MessageResult(List<CommunicationMessage> messages, Object nextToken) {
+        public MessageResult(@Nonnull List<CommunicationMessage> messages,
+                             @Nullable Object nextToken) {
             this.messages = messages;
             this.nextToken = nextToken;
         }
@@ -37,23 +43,29 @@ public interface Database {
             return nextToken == null;
         }
 
+        @Nonnull
         public List<CommunicationMessage> getMessages() {
             return messages;
         }
 
+        @Nullable
         protected  <T> T getNextToken() {
             //noinspection unchecked
             return (T)nextToken;
         }
     }
 
-    MessageResult getMessageResult(String conversationId, MessageResult messageResultOrNull, int batch);
+    @Nonnull
+    MessageResult getMessageResult(@Nonnull String conversationId,
+                                   @Nullable MessageResult messageResultOrNull,
+                                   int batch);
 
-    CommunicationMessage getMessage(ByteString id) throws NotFoundException;
+    @Nonnull
+    CommunicationMessage getMessage(@Nonnull ByteString id) throws NotFoundException;
 
-    void addMessage(CommunicationMessage message);
+    void addMessage(@Nonnull CommunicationMessage message);
 
-    void updateMessage(CommunicationMessage message);
+    void updateMessage(@Nonnull CommunicationMessage message);
 
     void close();
 }
