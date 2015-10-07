@@ -1,0 +1,21 @@
+
+before_script:
+  - /opt/tools/android-accept-licenses.sh 'android update sdk --all --no-ui --filter extra-android-m2repository,extra-google-m2repository,build-tools-23.0.0,android-23'
+  - echo "org.gradle.jvmargs=-XX:MaxPermSize=2g" > gradle.properties
+
+build:
+  image: jacekmarchwicki/android
+  script:
+  - export VERSION_SUFFIX="$(git rev-parse --short HEAD).$(git rev-list HEAD --count)$(echo "-${CI_BUILD_REF_NAME}" | sed 's/^-master$//')"
+  - emulator64-arm -avd test -no-skin -no-audio -no-window &
+  - python tools/download.py --token sfiIsJ5J67VJG4WBLSN7MWns --key-version agxzfmF1dG8tY2xvc2VyGAsSC1Byb2plY3RLZXlzGICAgICi4J4KDA
+  - git submodule update --init --recursive
+  - git submodule foreach --recursive git clean -x -f -d
+  - ./gradlew --parallel --stacktrace --project-prop commitId="${CI_BUILD_REF}" --project-prop versionSuffix="${VERSION_SUFFIX}" build assembleDebugAndroidTest
+  - timeout 300 ./tools/android-wait-for-emulator 
+  - ./gradlew --stacktrace connectedAndroidTest
+  - python tools/upload.py --token sfiIsJ5J67VJG4WBLSN7MWns --build-name "${VERSION_SUFFIX}" chat/build/reports/ chat/build/libs/ app/build/outputs/ app/build/reports/ chatandroid/build/outputs/ chatandroid/build/reports/
+  tags:
+  - docker
+  except:
+  - tags
