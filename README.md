@@ -88,33 +88,28 @@ memory read second 100: 5.580 ms
 ```
 
 ## How to integrate with your project
-In your poject directory
 
-```bash
-git submodule add <repo> key-value-db
-```
-
-add to settings your settings gradle:
+Add library to project dependencies.
 
 ```groovy
-include ":key-value-db"
-include ":key-value-db-snappy-driver"
+repositories {
+    maven { url "https://jitpack.io" }
+}
 
-project(':key-value-db').projectDir = new File('key-value-db/key-value-db')
-project(':key-value-db-snappy-driver').projectDir = new File('key-value-db/key-value-db-snappy-driver')
+dependencies {
+
+    // snapshot version
+    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db:master-SNAPSHOT'
+    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db-snappy-driver:master-SNAPSHOT'
+
+    // or use specific version
+    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db:1.0.0'
+    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db-snappy-driver:1.0.0'
+}
 ```
 
-In your api project `build.gradle`:
-
-```groovy
-compile project(":key-value-db")
-```
-
-In your android project `build.gradle`:
-
-```bash
-compile project(":key-value-db-snappy-driver")
-```
+If you have separate project for java you can use there only `key-value-db`, and add
+`key-value-db-snappy-driver` to android module.
 
 # License
 
