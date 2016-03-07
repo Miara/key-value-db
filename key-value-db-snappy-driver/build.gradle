@@ -4,7 +4,7 @@ buildscript {
         maven { url 'http://download.crashlytics.com/maven' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.3.0'
+        classpath 'com.android.tools.build:gradle:2.0.0-beta6'
     }
 }
 
@@ -28,7 +28,7 @@ dependencies {
 }
 
 android {
-    buildToolsVersion "23.0.1"
+    buildToolsVersion "23.0.2"
     compileSdkVersion 23
 
     defaultConfig {
