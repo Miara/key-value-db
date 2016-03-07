@@ -4,7 +4,7 @@ before_script:
   - echo "org.gradle.jvmargs=-XX:MaxPermSize=2g" > gradle.properties
 
 build:
-  image: jacekmarchwicki/android
+  image: jacekmarchwicki/android:java7-r24-4-1
   script:
   - export VERSION_SUFFIX="$(git rev-parse --short HEAD).$(git rev-list HEAD --count)$(echo "-${CI_BUILD_REF_NAME}" | sed 's/^-master$//')"
   - emulator64-arm -avd test -no-skin -no-audio -no-window &
