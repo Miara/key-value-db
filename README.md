@@ -1,5 +1,4 @@
 # Key value db for Android
-[![build status](http://gitlab-ci.appunite.net/projects/42/status.png?ref=master)](http://gitlab-ci.appunite.net/projects/42?ref=master)
 
 Object key-value database supporting queries. It is based on levelDB (snappyDB) but adds support for queries and object storing based on protobuf.
 
