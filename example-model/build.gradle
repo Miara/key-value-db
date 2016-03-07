@@ -1,5 +1,6 @@
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
         maven {url 'https://commondatastorage.googleapis.com/maven-repository/'}
     }
@@ -12,6 +13,7 @@ apply plugin: 'java'
 apply plugin: 'com.google.protobuf'
 
 repositories {
+    jcenter()
     mavenCentral()
     maven {url 'https://commondatastorage.googleapis.com/maven-repository/'}
 }
