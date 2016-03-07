@@ -1,5 +1,6 @@
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
         maven { url 'http://download.crashlytics.com/maven' }
     }
@@ -11,6 +12,7 @@ buildscript {
 apply plugin: 'com.android.library'
 
 repositories {
+    jcenter()
     mavenCentral()
 }
 
