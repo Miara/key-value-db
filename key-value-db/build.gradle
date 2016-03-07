@@ -1,5 +1,6 @@
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
     }
 }
@@ -11,6 +12,7 @@ group='com.github.jacek-marchwicki.key-value-db'
 version='1.0.0'
 
 repositories {
+    jcenter()
     mavenCentral()
 }
 
