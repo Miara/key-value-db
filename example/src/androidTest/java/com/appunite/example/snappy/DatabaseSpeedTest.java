@@ -46,20 +46,29 @@ public class DatabaseSpeedTest {
 
     @Test
     public void testSpeed() throws Exception {
-        runSpeedTest("snappy", 0, 500, 100);
-        runSpeedTest("sqlite", 1, 500, 100);
-        runSpeedTest("realm",  2, 500, 100);
-        runSpeedTest("memory", 3, 500, 100);
+        allTests(500, 100);
+        allTests(500, 200);
+        allTests(10000, 100);
+    }
 
-        runSpeedTest("snappy", 0, 500, 200);
-        runSpeedTest("sqlite", 1, 500, 200);
-        runSpeedTest("realm",  2, 500, 200);
-        runSpeedTest("memory", 3, 500, 200);
+    @Test
+    public void testSpeedOnlySnappyAndLevelDb() throws Exception {
+        levelDbTests(500, 100);
+        levelDbTests(500, 200);
+        levelDbTests(10000, 100);
+    }
 
-        runSpeedTest("snappy", 0, 10000, 100);
-        runSpeedTest("sqlite", 1, 10000, 100);
-        runSpeedTest("realm",  2, 10000, 100);
-        runSpeedTest("memory", 3, 10000, 100);
+    private void levelDbTests(int writeSample, int readSample) throws SnappydbException {
+        runSpeedTest("snappy", 0, writeSample, readSample);
+        runSpeedTest("leveldb", 4, writeSample, readSample);
+    }
+
+    private void allTests(int writeSample, int readSample) throws SnappydbException {
+        runSpeedTest("snappy", 0, writeSample, readSample);
+        runSpeedTest("sqlite", 1, writeSample, readSample);
+        runSpeedTest("leveldb", 4, writeSample, readSample);
+        runSpeedTest("realm", 2, writeSample, readSample);
+        runSpeedTest("memory", 3, writeSample, readSample);
     }
 
     @Test
@@ -67,7 +76,6 @@ public class DatabaseSpeedTest {
         testSerialize(10000);
     }
 
-    @Test
     private void testSerialize(int sampleSize) throws com.google.protobuf.InvalidProtocolBufferException {
         final ArrayList<Message.CommunicationMessage> messages = prepareMessages("conversation1", sampleSize);
 

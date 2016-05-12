@@ -19,6 +19,7 @@ package com.appunite.example.snappy;
 import android.content.Context;
 
 import com.appunite.keyvalue.KeyValueMemory;
+import com.appunite.keyvalue.driver.level.KeyValueLevel;
 import com.appunite.keyvalue.driver.snappy.KeyValueSnappy;
 
 public class DatabaseProvider {
@@ -33,6 +34,9 @@ public class DatabaseProvider {
                 return new DatabaseRealm(context, name);
             case 3:
                 return new DatabaseSnappy(new KeyValueMemory());
+            case 4: {
+                return new DatabaseSnappy(new KeyValueLevel(context.getDatabasePath(name)));
+            }
             default:
                 throw new RuntimeException("Unknown database type: " + databaseType);
         }

@@ -1,6 +1,6 @@
 # Key value db for Android
 
-Object key-value database supporting queries. It is based on levelDB (snappyDB) but adds support for queries and object storing based on protobuf.
+Object key-value database supporting queries. It is based on levelDB (leveldb-jni or snappyDB) but adds support for queries and object storing based on protobuf.
 
 ## Speed
 
@@ -94,22 +94,25 @@ Add library to project dependencies.
 ```groovy
 repositories {
     maven { url "https://jitpack.io" }
+    maven { url 'https://dl.bintray.com/jacek-marchwicki/maven/' }
 }
 
 dependencies {
 
     // snapshot version
     compile 'com.github.jacek-marchwicki.key-value-db:key-value-db:master-SNAPSHOT'
-    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db-snappy-driver:master-SNAPSHOT'
+    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db-level-driver:master-SNAPSHOT' // use lveldb-jni (one)
+    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db-snappy-driver:master-SNAPSHOT' // or use snappydb (one)
 
     // or use specific version
     compile 'com.github.jacek-marchwicki.key-value-db:key-value-db:1.0.0'
-    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db-snappy-driver:1.0.0'
+    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db-level-driver:1.0.0' // use leveldb-jni (one)
+    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db-snappy-driver:1.0.0' // or use snapydb (one)
 }
 ```
 
 If you have separate project for java you can use there only `key-value-db`, and add
-`key-value-db-snappy-driver` to android module.
+`key-value-db-level-driver` (or `key-value-db-snappy-driver`) to android module.
 
 # License
 
