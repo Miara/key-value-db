@@ -105,9 +105,9 @@ dependencies {
     compile 'com.github.jacek-marchwicki.key-value-db:key-value-db-snappy-driver:master-SNAPSHOT' // or use snappydb (one)
 
     // or use specific version
-    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db:1.0.0'
-    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db-level-driver:1.0.0' // use leveldb-jni (one)
-    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db-snappy-driver:1.0.0' // or use snapydb (one)
+    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db:1.0.1'
+    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db-level-driver:1.0.1' // use leveldb-jni (one)
+    compile 'com.github.jacek-marchwicki.key-value-db:key-value-db-snappy-driver:1.0.1' // or use snapydb (one)
 }
 ```
 
