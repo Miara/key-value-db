@@ -50,7 +50,7 @@ public class KeyValueLevelTest {
         final String format = String.format(Locale.US, "Db:%d.db", new Random().nextLong());
         final File databasePath = targetContext.getDatabasePath(format);
         deleteRecursive(databasePath);
-        keyValue = new KeyValueLevel(databasePath);
+        keyValue = KeyValueLevel.create(databasePath);
     }
 
     @After

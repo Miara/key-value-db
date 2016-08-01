@@ -58,12 +58,12 @@ public class DatabaseSpeedTest {
         levelDbTests(10000, 100);
     }
 
-    private void levelDbTests(int writeSample, int readSample) throws SnappydbException {
+    private void levelDbTests(int writeSample, int readSample) throws Exception {
         runSpeedTest("snappy", 0, writeSample, readSample);
         runSpeedTest("leveldb", 4, writeSample, readSample);
     }
 
-    private void allTests(int writeSample, int readSample) throws SnappydbException {
+    private void allTests(int writeSample, int readSample) throws Exception {
         runSpeedTest("snappy", 0, writeSample, readSample);
         runSpeedTest("sqlite", 1, writeSample, readSample);
         runSpeedTest("leveldb", 4, writeSample, readSample);
@@ -100,7 +100,7 @@ public class DatabaseSpeedTest {
         assert_().that(messages.size()).isEqualTo(out2.size());
     }
 
-    private void runSpeedTest(String dbName, int databaseType, int writeSample, int readSample) throws SnappydbException {
+    private void runSpeedTest(String dbName, int databaseType, int writeSample, int readSample) throws Exception {
         final Context targetContext = InstrumentationRegistry.getTargetContext();
         final Database database = DatabaseProvider.provide(targetContext, databaseType, UUID.randomUUID().toString());
         try {

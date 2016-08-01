@@ -46,7 +46,7 @@ public class KeyValueSnappyTest {
     @Before
     public void setUp() throws Exception {
         final Context targetContext = InstrumentationRegistry.getTargetContext();
-        keyValue = new KeyValueSnappy(targetContext, String.format(Locale.US, "Db:%d.db", new Random().nextLong()));
+        keyValue = KeyValueSnappy.create(targetContext, String.format(Locale.US, "Db:%d.db", new Random().nextLong()));
     }
 
     @After

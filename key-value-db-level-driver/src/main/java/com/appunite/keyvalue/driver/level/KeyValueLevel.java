@@ -35,15 +35,37 @@ public class KeyValueLevel implements KeyValue {
     @Nonnull
     private final LevelDB db;
 
+
+    public KeyValueLevel(@Nonnull LevelDB levelDB) {
+        db = levelDB;
+    }
+
+    @Nonnull
+    public static KeyValueLevel create(@Nonnull File path) throws IOException, LevelDBException {
+        return new KeyValueLevel(createDb(path));
+    }
+
+    @Deprecated
     public KeyValueLevel(@Nonnull File path) {
+        this(createDbOrFail(path));
+    }
+
+    @Deprecated
+    @Nonnull
+    private static LevelDB createDbOrFail(@Nonnull File path) {
         try {
-            if (!path.isDirectory() && !path.mkdirs()) {
-                throw new IOException("Could not create directory");
-            }
-            db = new LevelDB(path.getAbsolutePath());
+            return createDb(path);
         } catch (LevelDBException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Nonnull
+    private static LevelDB createDb(@Nonnull File path) throws IOException, LevelDBException {
+        if (!path.isDirectory() && !path.mkdirs()) {
+            throw new IOException("Could not create directory");
+        }
+        return new LevelDB(path.getAbsolutePath());
     }
 
     @Override

@@ -36,13 +36,35 @@ public class KeyValueSnappy implements KeyValue {
     @Nonnull
     private final DB db;
 
+    public KeyValueSnappy(@Nonnull final DB db) {
+        this.db = db;
+    }
+
+    @Nonnull
+    public static KeyValueSnappy create(@Nonnull Context context,
+                                 @Nonnull String name) throws SnappydbException {
+        return new KeyValueSnappy(createDb(context, name));
+    }
+
+    @Deprecated
     public KeyValueSnappy(@Nonnull Context context,
                           @Nonnull String name) {
+        //noinspection deprecation
+        this(createDbOrFail(context, name));
+    }
+
+    @Deprecated
+    private static DB createDbOrFail(@Nonnull Context context,
+                                     @Nonnull String name) {
         try {
-            db = new SnappyDB.Builder(context).name(name).build();
+            return createDb(context, name);
         } catch (SnappydbException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static DB createDb(@Nonnull Context context, @Nonnull String name) throws SnappydbException {
+        return new SnappyDB.Builder(context).name(name).build();
     }
 
     @Override
