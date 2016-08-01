@@ -24,10 +24,10 @@ import com.appunite.keyvalue.driver.snappy.KeyValueSnappy;
 
 public class DatabaseProvider {
 
-    public static Database provide(Context context, int databaseType, String name) {
+    public static Database provide(Context context, int databaseType, String name) throws Exception {
         switch (databaseType) {
             case 0:
-                return new DatabaseSnappy(new KeyValueSnappy(context, name));
+                return new DatabaseSnappy(KeyValueSnappy.create(context, name));
             case 1:
                 return new DatabaseSql(context, name);
             case 2:
@@ -35,7 +35,7 @@ public class DatabaseProvider {
             case 3:
                 return new DatabaseSnappy(new KeyValueMemory());
             case 4: {
-                return new DatabaseSnappy(new KeyValueLevel(context.getDatabasePath(name)));
+                return new DatabaseSnappy(KeyValueLevel.create(context.getDatabasePath(name)));
             }
             default:
                 throw new RuntimeException("Unknown database type: " + databaseType);

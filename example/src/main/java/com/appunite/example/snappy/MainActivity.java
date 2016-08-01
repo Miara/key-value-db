@@ -20,10 +20,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.appunite.keyvalue.KeyValue;
 import com.appunite.keyvalue.NotFoundException;
 import com.appunite.keyvalue.driver.level.KeyValueLevel;
+import com.appunite.leveldb.LevelDBException;
 import com.example.myapplication.Message;
 import com.google.protobuf.ByteString;
+
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,7 +36,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        final DatabaseSnappy databaseSnappy = new DatabaseSnappy(new KeyValueLevel(getDatabasePath("my.leveldb")));
+        final KeyValue keyValue;
+        try {
+            keyValue = KeyValueLevel.create(getDatabasePath("my.leveldb"));
+        } catch (IOException | LevelDBException e) {
+            throw new RuntimeException(e);
+        }
+        final DatabaseSnappy databaseSnappy = new DatabaseSnappy(keyValue);
         databaseSnappy.addMessage(Message.CommunicationMessage.newBuilder()
                 .setId(ByteString.copyFromUtf8("id1"))
                 .setCreatedAtMillis(123L)
