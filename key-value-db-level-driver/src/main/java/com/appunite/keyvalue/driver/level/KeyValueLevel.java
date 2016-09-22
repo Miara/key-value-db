@@ -16,9 +16,9 @@
 
 package com.appunite.keyvalue.driver.level;
 
-import com.appunite.keyvalue.driver.level.internal.Preconditions;
 import com.appunite.keyvalue.KeyValue;
 import com.appunite.keyvalue.NotFoundException;
+import com.appunite.keyvalue.driver.level.internal.Preconditions;
 import com.appunite.leveldb.KeyNotFoundException;
 import com.appunite.leveldb.LevelDB;
 import com.appunite.leveldb.LevelDBException;
@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class KeyValueLevel implements KeyValue {
     @Nonnull
@@ -104,7 +105,7 @@ public class KeyValueLevel implements KeyValue {
 
     @Nonnull
     @Override
-    public Iterator getKeys(@Nonnull ByteString prefix, ByteString nextTokenOrNull, int batch) {
+    public Iterator getKeys(@Nonnull final ByteString prefix, @Nullable final ByteString nextTokenOrNull, final int batch) {
         Preconditions.checkNotNull(prefix);
         Preconditions.checkArgument(batch >= 1);
         final int batchQuery = Math.min(batch, 1000);
@@ -124,6 +125,70 @@ public class KeyValueLevel implements KeyValue {
                         return new Iterator(arrayList, key);
                     }
                     arrayList.add(ByteString.copyFrom(iterator.value()));
+                }
+            } finally {
+                iterator.close();
+            }
+            return new Iterator(arrayList, null);
+        } catch (LevelDBException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Nonnull
+    @Override
+    public Iterator fetchValues(@Nonnull final ByteString prefix, @Nullable final ByteString nextTokenOrNull, final int batch) {
+        Preconditions.checkNotNull(prefix);
+        Preconditions.checkArgument(batch >= 1);
+        final int batchQuery = Math.min(batch, 1000);
+        final ArrayList<ByteString> arrayList = new ArrayList<>(batchQuery);
+        final ByteString startWith = nextTokenOrNull == null ? prefix : nextTokenOrNull;
+        try {
+            final LevelIterator iterator = db.newInterator();
+            //noinspection TryFinallyCanBeTryWithResources
+            try {
+                iterator.seekToFirst(startWith.toByteArray());
+                for (iterator.seekToFirst(startWith.toByteArray()); iterator.isValid(); iterator.next()) {
+                    final ByteString key = ByteString.copyFrom(iterator.key());
+                    if (!key.startsWith(prefix)) {
+                        break;
+                    }
+                    if (arrayList.size() == batch) {
+                        return new Iterator(arrayList, key);
+                    }
+                    arrayList.add(ByteString.copyFrom(iterator.value()));
+                }
+            } finally {
+                iterator.close();
+            }
+            return new Iterator(arrayList, null);
+        } catch (LevelDBException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Nonnull
+    @Override
+    public Iterator fetchKeys(@Nonnull final ByteString prefix, @Nullable final ByteString nextTokenOrNull, final int batch) {
+        Preconditions.checkNotNull(prefix);
+        Preconditions.checkArgument(batch >= 1);
+        final int batchQuery = Math.min(batch, 1000);
+        final ArrayList<ByteString> arrayList = new ArrayList<>(batchQuery);
+        final ByteString startWith = nextTokenOrNull == null ? prefix : nextTokenOrNull;
+        try {
+            final LevelIterator iterator = db.newInterator();
+            //noinspection TryFinallyCanBeTryWithResources
+            try {
+                iterator.seekToFirst(startWith.toByteArray());
+                for (iterator.seekToFirst(startWith.toByteArray()); iterator.isValid(); iterator.next()) {
+                    final ByteString key = ByteString.copyFrom(iterator.key());
+                    if (!key.startsWith(prefix)) {
+                        break;
+                    }
+                    if (arrayList.size() == batch) {
+                        return new Iterator(arrayList, key);
+                    }
+                    arrayList.add(ByteString.copyFrom(iterator.key()));
                 }
             } finally {
                 iterator.close();

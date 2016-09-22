@@ -33,9 +33,20 @@ public interface KeyValue {
     ByteString getBytes(@Nonnull ByteString key) throws NotFoundException;
 
     @Nonnull
+    @Deprecated
     Iterator getKeys(@Nonnull ByteString prefix,
                      @Nullable ByteString nextTokenOrNull,
                      int batch);
+
+    @Nonnull
+    Iterator fetchValues(@Nonnull ByteString prefix,
+                         @Nullable ByteString nextTokenOrNull,
+                         int batch);
+
+    @Nonnull
+    Iterator fetchKeys(@Nonnull ByteString prefix,
+                       @Nullable ByteString nextTokenOrNull,
+                       int batch);
 
     void close();
 
