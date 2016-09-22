@@ -134,7 +134,7 @@ public class KeyValueMemoryTest {
 
         final KeyValue.Iterator keys = keyValue.fetchKeys(ByteString.copyFrom(new byte[]{0}), null, 100);
 
-        assert_().that(keys.keys()).containsExactly(ByteString.copyFrom(new byte[]{1, 1}));
+        assert_().that(keys.keys()).containsExactly(ByteString.copyFrom(new byte[]{0, 1}));
         assert_().that(keys.nextToken()).isNull();
     }
 
