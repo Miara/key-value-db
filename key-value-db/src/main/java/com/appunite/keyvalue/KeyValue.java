@@ -34,6 +34,9 @@ public interface KeyValue {
 
     @Nonnull
     @Deprecated
+    /**
+     * You should use {@link #fetchValues(ByteString, ByteString, int)} instead
+     */
     Iterator getKeys(@Nonnull ByteString prefix,
                      @Nullable ByteString nextTokenOrNull,
                      int batch);

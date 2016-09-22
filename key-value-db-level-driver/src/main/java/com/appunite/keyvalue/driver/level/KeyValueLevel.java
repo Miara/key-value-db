@@ -188,7 +188,7 @@ public class KeyValueLevel implements KeyValue {
                     if (arrayList.size() == batch) {
                         return new Iterator(arrayList, key);
                     }
-                    arrayList.add(ByteString.copyFrom(iterator.key()));
+                    arrayList.add(key);
                 }
             } finally {
                 iterator.close();

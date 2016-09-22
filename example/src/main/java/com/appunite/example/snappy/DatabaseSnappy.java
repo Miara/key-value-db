@@ -48,7 +48,7 @@ public class DatabaseSnappy implements Database {
         }
         final ByteString messageConversationPrefix = getMessageConversationIndex(conversationId);
 
-        final KeyValue.Iterator iterator = keyValue.getKeys(messageConversationPrefix, messageResultOrNull == null ? null : messageResultOrNull.<ByteString>getNextToken(), batch);
+        final KeyValue.Iterator iterator = keyValue.fetchValues(messageConversationPrefix, messageResultOrNull == null ? null : messageResultOrNull.<ByteString>getNextToken(), batch);
 
         final List<ByteString> keys = iterator.keys();
         final ArrayList<Message.CommunicationMessage> objects = new ArrayList<>(keys.size());
