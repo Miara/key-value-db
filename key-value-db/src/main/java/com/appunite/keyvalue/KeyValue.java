@@ -33,9 +33,23 @@ public interface KeyValue {
     ByteString getBytes(@Nonnull ByteString key) throws NotFoundException;
 
     @Nonnull
+    @Deprecated
+    /**
+     * You should use {@link #fetchValues(ByteString, ByteString, int)} instead
+     */
     Iterator getKeys(@Nonnull ByteString prefix,
                      @Nullable ByteString nextTokenOrNull,
                      int batch);
+
+    @Nonnull
+    Iterator fetchValues(@Nonnull ByteString prefix,
+                         @Nullable ByteString nextTokenOrNull,
+                         int batch);
+
+    @Nonnull
+    Iterator fetchKeys(@Nonnull ByteString prefix,
+                       @Nullable ByteString nextTokenOrNull,
+                       int batch);
 
     void close();
 

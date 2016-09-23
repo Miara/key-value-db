@@ -18,10 +18,10 @@ package com.appunite.keyvalue.driver.snappy;
 
 import android.content.Context;
 
-import com.appunite.keyvalue.driver.snappy.internal.Preconditions;
 import com.appunite.keyvalue.ByteUtils;
 import com.appunite.keyvalue.KeyValue;
 import com.appunite.keyvalue.NotFoundException;
+import com.appunite.keyvalue.driver.snappy.internal.Preconditions;
 import com.google.protobuf.ByteString;
 import com.snappydb.DB;
 import com.snappydb.KeyIterator;
@@ -31,6 +31,7 @@ import com.snappydb.SnappydbException;
 import java.util.ArrayList;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class KeyValueSnappy implements KeyValue {
     @Nonnull
@@ -42,7 +43,7 @@ public class KeyValueSnappy implements KeyValue {
 
     @Nonnull
     public static KeyValueSnappy create(@Nonnull Context context,
-                                 @Nonnull String name) throws SnappydbException {
+                                        @Nonnull String name) throws SnappydbException {
         return new KeyValueSnappy(createDb(context, name));
     }
 
@@ -106,6 +107,12 @@ public class KeyValueSnappy implements KeyValue {
     @Nonnull
     @Override
     public Iterator getKeys(@Nonnull ByteString prefix, ByteString nextTokenOrNull, int batch) {
+        return fetchValues(prefix, nextTokenOrNull, batch);
+    }
+
+    @Nonnull
+    @Override
+    public Iterator fetchValues(@Nonnull final ByteString prefix, @Nullable final ByteString nextTokenOrNull, final int batch) {
         Preconditions.checkNotNull(prefix);
         Preconditions.checkArgument(batch >= 1);
         final int batchQuery = Math.min(batch, 1000);
@@ -134,6 +141,40 @@ public class KeyValueSnappy implements KeyValue {
             }
         } catch (NotFoundException e) {
             throw new RuntimeException(e);
+        } finally {
+            keysIterator.close();
+        }
+        return new Iterator(arrayList, null);
+    }
+
+    @Nonnull
+    @Override
+    public Iterator fetchKeys(@Nonnull final ByteString prefix, @Nullable final ByteString nextTokenOrNull, final int batch) {
+        Preconditions.checkNotNull(prefix);
+        Preconditions.checkArgument(batch >= 1);
+        final int batchQuery = Math.min(batch, 1000);
+        final ArrayList<ByteString> arrayList = new ArrayList<>(batchQuery);
+        final ByteString startWith = nextTokenOrNull == null ? prefix : nextTokenOrNull;
+        final KeyIterator keysIterator = findKeysIterator(startWith);
+        try {
+            final Iterable<String[]> iterator = keysIterator.byBatch(batchQuery);
+            boolean stop = false;
+            for (String[] keys : iterator) {
+                for (String key1 : keys) {
+                    final ByteString key = ByteUtils.fromString(key1);
+                    if (!key.startsWith(prefix)) {
+                        stop = true;
+                        break;
+                    }
+                    if (arrayList.size() == batch) {
+                        return new Iterator(arrayList, key);
+                    }
+                    arrayList.add(key);
+                }
+                if (stop) {
+                    break;
+                }
+            }
         } finally {
             keysIterator.close();
         }

@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static com.appunite.keyvalue.internal.Preconditions.checkNotNull;
@@ -87,12 +88,18 @@ public class KeyValueMemory implements KeyValue {
     @Nonnull
     @Override
     public Iterator getKeys(@Nonnull ByteString prefix, ByteString nextTokenOrNull, int batch) {
+        return fetchValues(prefix, nextTokenOrNull, batch);
+    }
+
+    @Nonnull
+    @Override
+    public Iterator fetchValues(@Nonnull final ByteString prefix, @Nullable final ByteString nextTokenOrNull, final int batch) {
         checkNotNull(prefix);
         Preconditions.checkArgument(batch >= 1);
         final ArrayList<ByteString> values = new ArrayList<>();
 
         Map.Entry<ByteString, ByteString> entry = map.ceilingEntry(nextTokenOrNull == null ? prefix : nextTokenOrNull);
-        for (;;) {
+        for (; ; ) {
             if (entry == null) {
                 return new Iterator(values, null);
             }
@@ -104,6 +111,32 @@ public class KeyValueMemory implements KeyValue {
                 return new Iterator(values, key);
             }
             values.add(entry.getValue());
+
+
+            entry = map.higherEntry(key);
+        }
+    }
+
+    @Nonnull
+    @Override
+    public Iterator fetchKeys(@Nonnull final ByteString prefix, @Nullable final ByteString nextTokenOrNull, final int batch) {
+        checkNotNull(prefix);
+        Preconditions.checkArgument(batch >= 1);
+        final ArrayList<ByteString> keys = new ArrayList<>();
+
+        Map.Entry<ByteString, ByteString> entry = map.ceilingEntry(nextTokenOrNull == null ? prefix : nextTokenOrNull);
+        for (; ; ) {
+            if (entry == null) {
+                return new Iterator(keys, null);
+            }
+            final ByteString key = entry.getKey();
+            if (!key.startsWith(prefix)) {
+                return new Iterator(keys, null);
+            }
+            if (keys.size() == batch) {
+                return new Iterator(keys, key);
+            }
+            keys.add(key);
 
 
             entry = map.higherEntry(key);
