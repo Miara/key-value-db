@@ -88,27 +88,7 @@ public class KeyValueMemory implements KeyValue {
     @Nonnull
     @Override
     public Iterator getKeys(@Nonnull ByteString prefix, ByteString nextTokenOrNull, int batch) {
-        checkNotNull(prefix);
-        Preconditions.checkArgument(batch >= 1);
-        final ArrayList<ByteString> values = new ArrayList<>();
-
-        Map.Entry<ByteString, ByteString> entry = map.ceilingEntry(nextTokenOrNull == null ? prefix : nextTokenOrNull);
-        for (; ; ) {
-            if (entry == null) {
-                return new Iterator(values, null);
-            }
-            final ByteString key = entry.getKey();
-            if (!key.startsWith(prefix)) {
-                return new Iterator(values, null);
-            }
-            if (values.size() == batch) {
-                return new Iterator(values, key);
-            }
-            values.add(entry.getValue());
-
-
-            entry = map.higherEntry(key);
-        }
+        return fetchValues(prefix, nextTokenOrNull, batch);
     }
 
     @Nonnull

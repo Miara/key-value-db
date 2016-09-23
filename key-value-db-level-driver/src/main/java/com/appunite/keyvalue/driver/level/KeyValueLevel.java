@@ -106,33 +106,7 @@ public class KeyValueLevel implements KeyValue {
     @Nonnull
     @Override
     public Iterator getKeys(@Nonnull final ByteString prefix, @Nullable final ByteString nextTokenOrNull, final int batch) {
-        Preconditions.checkNotNull(prefix);
-        Preconditions.checkArgument(batch >= 1);
-        final int batchQuery = Math.min(batch, 1000);
-        final ArrayList<ByteString> arrayList = new ArrayList<>(batchQuery);
-        final ByteString startWith = nextTokenOrNull == null ? prefix : nextTokenOrNull;
-        try {
-            final LevelIterator iterator = db.newInterator();
-            //noinspection TryFinallyCanBeTryWithResources
-            try {
-                iterator.seekToFirst(startWith.toByteArray());
-                for (iterator.seekToFirst(startWith.toByteArray()); iterator.isValid(); iterator.next()) {
-                    final ByteString key = ByteString.copyFrom(iterator.key());
-                    if (!key.startsWith(prefix)) {
-                        break;
-                    }
-                    if (arrayList.size() == batch) {
-                        return new Iterator(arrayList, key);
-                    }
-                    arrayList.add(ByteString.copyFrom(iterator.value()));
-                }
-            } finally {
-                iterator.close();
-            }
-            return new Iterator(arrayList, null);
-        } catch (LevelDBException e) {
-            throw new RuntimeException(e);
-        }
+        return fetchValues(prefix, nextTokenOrNull, batch);
     }
 
     @Nonnull

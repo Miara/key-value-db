@@ -107,38 +107,7 @@ public class KeyValueSnappy implements KeyValue {
     @Nonnull
     @Override
     public Iterator getKeys(@Nonnull ByteString prefix, ByteString nextTokenOrNull, int batch) {
-        Preconditions.checkNotNull(prefix);
-        Preconditions.checkArgument(batch >= 1);
-        final int batchQuery = Math.min(batch, 1000);
-        final ArrayList<ByteString> arrayList = new ArrayList<>(batchQuery);
-        final ByteString startWith = nextTokenOrNull == null ? prefix : nextTokenOrNull;
-        final KeyIterator keysIterator = findKeysIterator(startWith);
-        try {
-            final Iterable<String[]> iterator = keysIterator.byBatch(batchQuery);
-            boolean stop = false;
-            for (String[] keys : iterator) {
-                for (String key1 : keys) {
-                    ByteString key = ByteUtils.fromString(key1);
-                    if (!key.startsWith(prefix)) {
-                        stop = true;
-                        break;
-                    }
-                    if (arrayList.size() == batch) {
-                        return new Iterator(arrayList, key);
-                    }
-                    arrayList.add(getBytes(key));
-                }
-                if (stop) {
-                    break;
-                }
-
-            }
-        } catch (NotFoundException e) {
-            throw new RuntimeException(e);
-        } finally {
-            keysIterator.close();
-        }
-        return new Iterator(arrayList, null);
+        return fetchValues(prefix, nextTokenOrNull, batch);
     }
 
     @Nonnull
