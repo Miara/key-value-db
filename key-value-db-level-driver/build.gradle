@@ -1,26 +1,12 @@
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-        maven { url 'http://download.crashlytics.com/maven' }
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.3'
-    }
-}
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
 group='com.github.jacek-marchwicki.key-value-db'
-version='1.0.1'
+version=project.ext.versionName
 
-
-repositories {
-    jcenter()
-    mavenCentral()
-    maven { url 'https://dl.bintray.com/jacek-marchwicki/maven/' }
+configurations {
+    deployerJars
 }
 
 dependencies {
@@ -34,6 +20,7 @@ dependencies {
     androidTestCompile 'com.android.support.test:runner:0.3'
     androidTestCompile 'com.android.support.test:rules:0.3'
 
+    deployerJars "org.apache.maven.wagon:wagon-http:2.2"
 }
 
 android {
@@ -79,4 +66,15 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 artifacts {
     archives sourcesJar
     archives javadocJar
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            configuration = configurations.deployerJars
+            repository(url: "https://auto-close.appspot.com/maven/206") {
+                authentication(userName: "un-important", password: project.ext.autoCloseToken)
+            }
+        }
+    }
 }

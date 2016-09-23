@@ -1,23 +1,5 @@
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
-    }
-}
 
 apply plugin: 'com.android.application'
-
-repositories {
-    jcenter()
-    mavenCentral()
-    maven {
-        url 'http://oss.jfrog.org/artifactory/oss-snapshot-local'
-    }
-    maven { url 'https://dl.bintray.com/jacek-marchwicki/maven/' }
-}
 
 configurations.all {
     resolutionStrategy.force 'com.android.support:support-annotations:23.0.1'
@@ -64,7 +46,7 @@ android {
         minSdkVersion 11
         targetSdkVersion 23
         versionCode 1
-        versionName "0.0.1"
+        versionName project.ext.versionName
         applicationId "com.appunite.example.snappy"
         testHandleProfiling true
         testFunctionalTest true
