@@ -140,9 +140,9 @@ public class KeyValueSnappyTest {
     public void testGetKeysExactly_canBeRetrieved() throws Exception {
         keyValue.put(ByteString.copyFrom(new byte[]{0}), OBJECT1);
 
-        final KeyValue.Iterator keys = keyValue.fetchValues(ByteString.copyFrom(new byte[]{0}), null, 100);
+        final KeyValue.Iterator keys = keyValue.fetchKeys(ByteString.copyFrom(new byte[]{0}), null, 100);
 
-        assert_().that(keys.keys()).containsExactly(ByteString.copyFrom(new byte[]{0}), OBJECT1);
+        assert_().that(keys.keys()).containsExactly(ByteString.copyFrom(new byte[]{0}));
         assert_().that(keys.nextToken()).isNull();
     }
 
@@ -151,7 +151,7 @@ public class KeyValueSnappyTest {
         keyValue.put(ByteString.copyFrom(new byte[]{0, 1}), OBJECT1);
         keyValue.put(ByteString.copyFrom(new byte[]{1, 1}), OBJECT2);
 
-        final KeyValue.Iterator keys = keyValue.fetchValues(ByteString.copyFrom(new byte[]{0}), null, 100);
+        final KeyValue.Iterator keys = keyValue.fetchKeys(ByteString.copyFrom(new byte[]{0}), null, 100);
 
         assert_().that(keys.keys()).containsExactly(ByteString.copyFrom(new byte[]{0, 1}));
         assert_().that(keys.nextToken()).isNull();
@@ -162,7 +162,7 @@ public class KeyValueSnappyTest {
         keyValue.put(ByteString.copyFrom(new byte[]{0, 1}), OBJECT1);
         keyValue.put(ByteString.copyFrom(new byte[]{1, 1}), OBJECT2);
 
-        final KeyValue.Iterator keys = keyValue.fetchValues(ByteString.copyFrom(new byte[]{1}), null, 100);
+        final KeyValue.Iterator keys = keyValue.fetchKeys(ByteString.copyFrom(new byte[]{1}), null, 100);
 
         assert_().that(keys.keys()).containsExactly(ByteString.copyFrom(new byte[]{1, 1}));
         assert_().that(keys.nextToken()).isNull();
@@ -173,7 +173,7 @@ public class KeyValueSnappyTest {
         keyValue.put(ByteString.copyFrom(new byte[]{1, 1}), OBJECT2);
         keyValue.put(ByteString.copyFrom(new byte[]{0, 1}), OBJECT1);
 
-        final KeyValue.Iterator keys = keyValue.fetchValues(ByteString.copyFrom(new byte[]{0}), null, 100);
+        final KeyValue.Iterator keys = keyValue.fetchKeys(ByteString.copyFrom(new byte[]{0}), null, 100);
 
         assert_().that(keys.keys()).containsExactly(ByteString.copyFrom(new byte[]{0, 1}));
         assert_().that(keys.nextToken()).isNull();
@@ -183,7 +183,7 @@ public class KeyValueSnappyTest {
     public void testIfOneElementIsInDbRetrieveOne_returnNullNextToken() throws Exception {
         keyValue.put(ByteString.copyFrom(new byte[]{0, 1}), OBJECT1);
 
-        final KeyValue.Iterator keys = keyValue.fetchValues(ByteString.copyFrom(new byte[]{0}), null, 1);
+        final KeyValue.Iterator keys = keyValue.fetchKeys(ByteString.copyFrom(new byte[]{0}), null, 1);
 
         assert_().that(keys.nextToken()).isNull();
     }
@@ -193,7 +193,7 @@ public class KeyValueSnappyTest {
         keyValue.put(ByteString.copyFrom(new byte[]{0, 0}), OBJECT1);
         keyValue.put(ByteString.copyFrom(new byte[]{0, 1}), OBJECT2);
 
-        final KeyValue.Iterator keys = keyValue.fetchValues(ByteString.copyFrom(new byte[]{0}), null, 1);
+        final KeyValue.Iterator keys = keyValue.fetchKeys(ByteString.copyFrom(new byte[]{0}), null, 1);
 
         assert_().that(keys.keys()).containsExactly(ByteString.copyFrom(new byte[]{0, 0}));
         assert_().that(keys.nextToken()).isNotNull();
@@ -204,8 +204,8 @@ public class KeyValueSnappyTest {
         keyValue.put(ByteString.copyFrom(new byte[]{0, 0}), OBJECT1);
         keyValue.put(ByteString.copyFrom(new byte[]{0, 1}), OBJECT2);
 
-        final KeyValue.Iterator keys = keyValue.fetchValues(ByteString.copyFrom(new byte[]{0}), null, 1);
-        final KeyValue.Iterator keys2 = keyValue.fetchValues(ByteString.copyFrom(new byte[]{0}), keys.nextToken(), 1);
+        final KeyValue.Iterator keys = keyValue.fetchKeys(ByteString.copyFrom(new byte[]{0}), null, 1);
+        final KeyValue.Iterator keys2 = keyValue.fetchKeys(ByteString.copyFrom(new byte[]{0}), keys.nextToken(), 1);
 
         assert_().that(keys2.keys()).containsExactly(ByteString.copyFrom(new byte[]{0, 1}));
         assert_().that(keys2.nextToken()).isNull();
