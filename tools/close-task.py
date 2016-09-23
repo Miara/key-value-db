@@ -19,8 +19,6 @@ def main():
     parser = argparse.ArgumentParser(description='Manage task.')
     parser.add_argument('--token', dest='token', required=True, nargs='?',
                         type=str, help='token')
-    parser.add_argument('--merge', dest='merge', action='store_const',
-                        const=True, default=False, help='task is merged')
     parser.add_argument('--base-url', dest='base_url', nargs="?",
                         type=str, help='base url', default="https://auto-close.appspot.com/")
     parser.add_argument('message', metavar='MESSAGE', type=str, nargs=1,
@@ -32,15 +30,8 @@ def main():
     closed_urls = get_urls(commit_message, lambda line: get_url_by_keyword("Closes", line))
     referred_urls = get_urls(commit_message, lambda line: get_url_by_keyword("Refers", line))
 
-    if "[wip]" in commit_message[0].lower():
-        write_message(args.base_url, referred_urls, args.token, "Referred in [WIP] commit: " + message)
-        write_message(args.base_url, closed_urls, args.token, "[WIP] commit pushed to review: " + message)
-    elif args.merge:
-        write_message(args.base_url, referred_urls, args.token, "Referred commit merged: " + message)
-        close_urls(args.base_url, closed_urls, args.token, "Commit merged in review: " + message)
-    else:
-        write_message(args.base_url, referred_urls, args.token, "Referred in commit: " + message)
-        review_urls(args.base_url, closed_urls, args.token, "Commit pushed to review: " + message)
+    write_message(args.base_url, referred_urls, args.token, "Referred commit merged: " + message)
+    close_urls(args.base_url, closed_urls, args.token, "Commit merged in review: " + message)
 
 
 handler = urllib2.HTTPSHandler(debuglevel=0)
@@ -62,17 +53,6 @@ def close_urls(base_url, urls, token, message):
         data = {
             "message": message,
             "close": "true",
-            "token": token,
-            "url": url
-        }
-        execute(base_url, data)
-
-
-def review_urls(base_url, urls, token, message):
-    for url in urls:
-        data = {
-            "message": message,
-            "review": "true",
             "token": token,
             "url": url
         }
