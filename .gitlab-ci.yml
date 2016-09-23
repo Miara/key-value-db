@@ -1,21 +1,25 @@
 
 before_script:
-  - /opt/tools/android-accept-licenses.sh 'android update sdk --all --no-ui --filter extra-android-m2repository,extra-google-m2repository,build-tools-23.0.1,android-23'
-  - echo "org.gradle.jvmargs=-XX:MaxPermSize=2g" > gradle.properties
+  - export VERSION_NAME="$(([[ "${CI_BUILD_TAG}" ]] && echo "${CI_BUILD_TAG}" || echo "$(git describe --match 'v*.*.*' --always --dirty)-$(git rev-list HEAD --count)") | sed 's/    ^v//')"
+  - export VERSION_CODE="$(git rev-list HEAD --count)"
+  - echo "Building version $VERSION_NAME ($VERSION_CODE)"
+  - python tools/download.py --token ${AUTO_CLOSE_TOKEN} --key-version agxzfmF1dG8tY2xvc2VyGAsSC1Byb2plY3RLZXlzGICAgICi4J4KDA
+  - printf "org.gradle.jvmargs=-XX:MaxPermSize=2g\nversionName=${VERSION_NAME}\nversionCode=${VERSION_CODE}\ndisablePreDex=true\nautoCloseToken=${AUTO_CLOSE_TOKEN}\n" > gradle.properties
+
+  # client build will start when adding tag v*.*.*
+  - export FOR_CLIENT="$([[ "${CI_BUILD_TAG}" =~ ^v([0-9]+\.)*[0-9]+$ ]] && echo "TRUE")"
+  # testers will receive builds from master, for client or any tag
+  - export FOR_TESTERS="$([[ "${CI_BUILD_REF_NAME}" == "master" || "${FOR_CLIENT}" || "${CI_BUILD_TAG}" ]] && echo "TRUE")"
+
+  - /opt/tools/android-accept-licenses.sh 'android update sdk --all --no-ui --filter extra-android-m2repository,extra-google-m2repository,build-tools-23.0.2,android-23'
 
 build:
-  image: jacekmarchwicki/android:java7-r24-4-1
+  image: jacekmarchwicki/android:java8-r24-4-1
   script:
-  - export VERSION_SUFFIX="$(git rev-parse --short HEAD).$(git rev-list HEAD --count)$(echo "-${CI_BUILD_REF_NAME}" | sed 's/^-master$//')"
   - emulator64-arm -avd test -no-skin -no-audio -no-window &
-  - python tools/download.py --token sfiIsJ5J67VJG4WBLSN7MWns --key-version agxzfmF1dG8tY2xvc2VyGAsSC1Byb2plY3RLZXlzGICAgICi4J4KDA
-  - git submodule update --init --recursive
-  - git submodule foreach --recursive git clean -x -f -d
-  - ./gradlew --parallel --stacktrace --project-prop commitId="${CI_BUILD_REF}" --project-prop versionSuffix="${VERSION_SUFFIX}" build assembleDebugAndroidTest
-  - timeout 300 ./tools/android-wait-for-emulator 
-  - ./gradlew --stacktrace connectedAndroidTest
-  - python tools/upload.py --token sfiIsJ5J67VJG4WBLSN7MWns --build-name "${VERSION_SUFFIX}" chat/build/reports/ chat/build/libs/ app/build/outputs/ app/build/reports/ chatandroid/build/outputs/ chatandroid/build/reports/
+  - timeout 900 ./tools/android-wait-for-emulator
+  - ./gradlew --parallel --stacktrace --no-daemon build connectedAndroidTest javadoc $(test "FOR_CLIENT" && echo "uploadArchives")
+  - if [[ "${FOR_TESTERS}" ]]; then python tools/upload.py --token ${AUTO_CLOSE_TOKEN} --build-name "${VERSION_NAME}" $(test "FOR_CLIENT" && echo "--final") chat/build/reports/ chat/build/libs/ app/build/outputs/ chatandroid/build/outputs/; fi
+  - if [[ "${FOR_TESTERS}" ]]; then python tools/close-task.py --token ${AUTO_CLOSE_TOKEN} "Version ${VERSION_NAME}"; fi
   tags:
   - docker
-  except:
-  - tags
