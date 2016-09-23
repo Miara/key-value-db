@@ -19,7 +19,7 @@ build:
   - emulator64-arm -avd test -no-skin -no-audio -no-window &
   - timeout 900 ./tools/android-wait-for-emulator
   - ./gradlew --parallel --stacktrace --no-daemon build connectedAndroidTest javadoc $(test "FOR_CLIENT" && echo "uploadArchives")
-  - if [[ "${FOR_TESTERS}" ]]; then python tools/upload.py --token ${AUTO_CLOSE_TOKEN} --build-name "${VERSION_NAME}" $(test "FOR_CLIENT" && echo "--final") chat/build/reports/ chat/build/libs/ app/build/outputs/ chatandroid/build/outputs/; fi
+  - if [[ "${FOR_TESTERS}" ]]; then python tools/upload.py --token ${AUTO_CLOSE_TOKEN} --build-name "${VERSION_NAME}" $(test "FOR_CLIENT" && echo "--final") example/build/outputs/ example/build/reports/ example-model/build/libs/ key-value-db/build/libs/ key-value-db/build/reports/ key-value-db-level-driver/build/outputs/ key-value-db-level-driver/build/reports/ key-value-db-snappy-driver/build/outputs/ key-value-db-snappy-driver/build/reports/; fi
   - if [[ "${FOR_TESTERS}" ]]; then python tools/close-task.py --token ${AUTO_CLOSE_TOKEN} "Version ${VERSION_NAME}"; fi
   tags:
   - docker
