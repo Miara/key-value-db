@@ -20,7 +20,6 @@ dependencies {
     compile 'com.android.support:palette-v7:23.0.1'
     compile 'com.android.support:recyclerview-v7:23.0.1'
     compile 'com.android.support:cardview-v7:23.0.1'
-    compile 'com.jakewharton:butterknife:4.0.1'
     compile 'io.realm:realm-android:0.83.0-SNAPSHOT'
     compile 'com.google.guava:guava:18.0'
 
@@ -31,8 +30,8 @@ dependencies {
 
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 26
+    buildToolsVersion '26.0.0'
 
     packagingOptions {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
@@ -44,7 +43,7 @@ android {
 
     defaultConfig {
         minSdkVersion 11
-        targetSdkVersion 23
+        targetSdkVersion 26
         versionCode 1
         versionName project.ext.versionName
         applicationId "com.appunite.example.snappy"
@@ -52,11 +51,13 @@ android {
         testFunctionalTest true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArgument 'notAnnotation', 'android.test.suitebuilder.annotation.LargeTest'
-    }
 
-    dexOptions {
-        preDexLibraries = false
-        javaMaxHeapSize "4g"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                // Because we use `compile 'io.realm:realm-android:0.83.0-SNAPSHOT'` that includes annotation processor
+                includeCompileClasspath = true
+            }
+        }
     }
 
     compileOptions {
@@ -67,8 +68,6 @@ android {
     lintOptions {
         abortOnError true
         disable 'InvalidPackage'
-        xmlOutput file("${reportsDir}/lint/lint-results.xml")
-        htmlOutput file("${reportsDir}/lint/lint-results.html")
     }
 
 }
