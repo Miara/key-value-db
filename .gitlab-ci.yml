@@ -11,15 +11,29 @@ before_script:
   # testers will receive builds from master, for client or any tag
   - export FOR_TESTERS="$([[ "${CI_BUILD_REF_NAME}" == "master" || "${FOR_CLIENT}" || "${CI_BUILD_TAG}" ]] && echo "TRUE")"
 
+  # Accept licenses
+  - mkdir -p "${ANDROID_HOME}/licenses"
+  - echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > "${ANDROID_HOME}/licenses/android-sdk-license"
+  - echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "${ANDROID_HOME}/licenses/android-sdk-preview-license"
+  - echo -e "\nd975f751698a77b662f1254ddbeed3901e976f5a" > "${ANDROID_HOME}/licenses/intel-android-extra-license"
+
+  # Install android emulator
   - /opt/tools/android-accept-licenses.sh 'android update sdk --all --no-ui --filter extra-android-m2repository,extra-google-m2repository,build-tools-23.0.2,android-23'
+
 
 build:
   image: jacekmarchwicki/android:java8-r24-4-1
   script:
-  - emulator64-arm -avd test -no-skin -no-audio -no-window &
-  - timeout 900 ./tools/android-wait-for-emulator
-  - ./gradlew --parallel --stacktrace --no-daemon build connectedAndroidTest javadoc $(test "FOR_CLIENT" && echo "uploadArchives")
-  - if [[ "${FOR_TESTERS}" ]]; then python tools/upload.py --token ${AUTO_CLOSE_TOKEN} --build-name "${VERSION_NAME}" $(test "FOR_CLIENT" && echo "--final") example/build/outputs/ example/build/reports/ example-model/build/libs/ key-value-db/build/libs/ key-value-db/build/reports/ key-value-db-level-driver/build/outputs/ key-value-db-level-driver/build/reports/ key-value-db-snappy-driver/build/outputs/ key-value-db-snappy-driver/build/reports/; fi
-  - if [[ "${FOR_TESTERS}" ]]; then python tools/close-task.py --token ${AUTO_CLOSE_TOKEN} "Version ${VERSION_NAME}"; fi
+    - emulator64-arm -avd test -no-skin -no-audio -no-window &
+    - timeout 900 ./tools/android-wait-for-emulator
+    - ./gradlew --parallel --stacktrace --no-daemon build connectedAndroidTest javadoc $(test "FOR_CLIENT" && echo "uploadArchives")
+    - if [[ "${FOR_TESTERS}" ]]; then python tools/upload.py --token ${AUTO_CLOSE_TOKEN} --build-name "${VERSION_NAME}" $(test "FOR_CLIENT" && echo "--final") example/build/outputs/ example/build/reports/ example-model/build/libs/ key-value-db/build/libs/ key-value-db/build/reports/ key-value-db-level-driver/build/outputs/ key-value-db-level-driver/build/reports/ key-value-db-snappy-driver/build/outputs/ key-value-db-snappy-driver/build/reports/; fi
+    - if [[ "${FOR_TESTERS}" ]]; then python tools/close-task.py --token ${AUTO_CLOSE_TOKEN} "Version ${VERSION_NAME}"; fi
+  cache:
+    key: "${CI_BUILD_NAME}/v1"
+    paths:
+      - .gradle/
+  variables:
+    GRADLE_USER_HOME: ${CI_PROJECT_DIR}/.gradle
   tags:
   - docker
