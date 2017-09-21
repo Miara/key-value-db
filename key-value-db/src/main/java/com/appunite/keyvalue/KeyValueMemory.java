@@ -32,7 +32,7 @@ import javax.inject.Inject;
 import static com.appunite.keyvalue.internal.Preconditions.checkNotNull;
 
 public class KeyValueMemory implements KeyValue {
-    private static final Comparator<ByteString> COMPARATOR = new Comparator<ByteString>() {
+    static final Comparator<ByteString> COMPARATOR = new Comparator<ByteString>() {
         @Override
         public int compare(ByteString o1, ByteString o2) {
             final int size1 = o1.size();
