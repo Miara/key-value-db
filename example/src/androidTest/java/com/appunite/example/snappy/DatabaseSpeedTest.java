@@ -38,7 +38,7 @@ import java.util.UUID;
 import static com.google.common.truth.Truth.assert_;
 
 @RunWith(AndroidJUnit4.class)
-//@LargeTest
+@LargeTest
 public class DatabaseSpeedTest {
 
     private static final String TAG = DatabaseSpeedTest.class.getCanonicalName();
