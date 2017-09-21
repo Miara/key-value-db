@@ -18,25 +18,106 @@ package com.appunite.keyvalue;
 
 import com.google.protobuf.ByteString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public interface KeyValue {
+import static com.appunite.keyvalue.internal.Preconditions.checkNotNull;
 
-    void put(@Nonnull ByteString key, @Nonnull ByteString value);
+public interface KeyValue extends EditOperations {
 
-    void del(@Nonnull ByteString key);
+    interface Batch extends EditOperations {
+        void clear();
+        void write();
+    }
+
+    class FakeBatch implements Batch {
+
+        @Nonnull
+        private final KeyValue keyValue;
+        @Nonnull
+        private final List<Operation> operations = new ArrayList<>();
+
+        public FakeBatch(@Nonnull KeyValue keyValue) {
+            this.keyValue = keyValue;
+        }
+
+        @Override
+        public void put(@Nonnull ByteString key, @Nonnull ByteString value) {
+            checkNotNull(key);
+            checkNotNull(value);
+            operations.add(new PutOperation(key, value));
+        }
+
+        @Override
+        public void del(@Nonnull ByteString key) {
+            checkNotNull(key);
+            operations.add(new DelOperation(key));
+        }
+
+        @Override
+        public void clear() {
+            operations.clear();
+        }
+
+        @Override
+        public void write() {
+            for (Operation operation : operations) {
+                operation.apply(keyValue);
+            }
+        }
+
+        interface Operation {
+            void apply(@Nonnull KeyValue keyValue);
+        }
+        private static class DelOperation implements Operation {
+            @Nonnull
+            private final ByteString key;
+
+            DelOperation(@Nonnull ByteString key) {
+                this.key = key;
+                checkNotNull(key);
+            }
+
+            @Override
+            public void apply(@Nonnull KeyValue keyValue) {
+                keyValue.del(key);
+            }
+        }
+        private static class PutOperation implements Operation {
+
+            @Nonnull
+            private final ByteString key;
+            @Nonnull
+            private final ByteString value;
+
+            private PutOperation(@Nonnull ByteString key, @Nonnull ByteString value) {
+                this.key = key;
+                this.value = value;
+                checkNotNull(key);
+                checkNotNull(value);
+            }
+
+            @Override
+            public void apply(@Nonnull KeyValue keyValue) {
+                keyValue.put(key, value);
+            }
+        }
+    }
+
+    @Nonnull
+    Batch newBatch();
 
     @Nonnull
     ByteString getBytes(@Nonnull ByteString key) throws NotFoundException;
 
-    @Nonnull
-    @Deprecated
     /**
      * You should use {@link #fetchValues(ByteString, ByteString, int)} instead
      */
+    @Nonnull
+    @Deprecated
     Iterator getKeys(@Nonnull ByteString prefix,
                      @Nullable ByteString nextTokenOrNull,
                      int batch);

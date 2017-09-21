@@ -38,7 +38,7 @@ import java.util.UUID;
 import static com.google.common.truth.Truth.assert_;
 
 @RunWith(AndroidJUnit4.class)
-@LargeTest
+//@LargeTest
 public class DatabaseSpeedTest {
 
     private static final String TAG = DatabaseSpeedTest.class.getCanonicalName();
@@ -46,29 +46,35 @@ public class DatabaseSpeedTest {
 
     @Test
     public void testSpeed() throws Exception {
-        allTests(500, 100);
-        allTests(500, 200);
-        allTests(10000, 100);
+        allTests(500, 100, false);
+        allTests(500, 200, false);
+        allTests(10000, 100, false);
+        allTests(500, 100, true);
+        allTests(500, 200, true);
+        allTests(10000, 100, true);
     }
 
     @Test
     public void testSpeedOnlySnappyAndLevelDb() throws Exception {
-        levelDbTests(500, 100);
-        levelDbTests(500, 200);
-        levelDbTests(10000, 100);
+        levelDbTests(500, 100, false);
+        levelDbTests(500, 200, false);
+        levelDbTests(10000, 100, false);
+        levelDbTests(500, 100, true);
+        levelDbTests(500, 200, true);
+        levelDbTests(10000, 100, true);
     }
 
-    private void levelDbTests(int writeSample, int readSample) throws Exception {
-        runSpeedTest("snappy", 0, writeSample, readSample);
-        runSpeedTest("leveldb", 4, writeSample, readSample);
+    private void levelDbTests(int writeSample, int readSample, boolean useBatch) throws Exception {
+        runSpeedTest("snappy", 0, writeSample, readSample, useBatch);
+        runSpeedTest("leveldb", 4, writeSample, readSample, useBatch);
     }
 
-    private void allTests(int writeSample, int readSample) throws Exception {
-        runSpeedTest("snappy", 0, writeSample, readSample);
-        runSpeedTest("sqlite", 1, writeSample, readSample);
-        runSpeedTest("leveldb", 4, writeSample, readSample);
-        runSpeedTest("realm", 2, writeSample, readSample);
-        runSpeedTest("memory", 3, writeSample, readSample);
+    private void allTests(int writeSample, int readSample, boolean useBatch) throws Exception {
+        runSpeedTest("snappy", 0, writeSample, readSample, useBatch);
+        runSpeedTest("sqlite", 1, writeSample, readSample, useBatch);
+        runSpeedTest("leveldb", 4, writeSample, readSample, useBatch);
+        runSpeedTest("realm", 2, writeSample, readSample, useBatch);
+        runSpeedTest("memory", 3, writeSample, readSample, useBatch);
     }
 
     @Test
@@ -100,7 +106,7 @@ public class DatabaseSpeedTest {
         assert_().that(messages.size()).isEqualTo(out2.size());
     }
 
-    private void runSpeedTest(String dbName, int databaseType, int writeSample, int readSample) throws Exception {
+    private void runSpeedTest(String dbName, int databaseType, int writeSample, int readSample, boolean useBatch) throws Exception {
         final Context targetContext = InstrumentationRegistry.getTargetContext();
         final Database database = DatabaseProvider.provide(targetContext, databaseType, UUID.randomUUID().toString());
         try {
@@ -110,10 +116,14 @@ public class DatabaseSpeedTest {
 
             System.gc();
             final Stopwatch stopwatch1 = Stopwatch.createStarted();
-            for (Message.CommunicationMessage message : list) {
-                database.addMessage(message);
+            if (useBatch) {
+                database.addMessages(list);
+            } else {
+                for (Message.CommunicationMessage message : list) {
+                    database.addMessage(message);
+                }
             }
-            Log.i(TAG, String.format("testSpeed - %s add %d: %s", dbName, writeSample, stopwatch1.toString()));
+            Log.i(TAG, String.format("testSpeed - %s add %d: %s, inBatch: %s", dbName, writeSample, stopwatch1.toString(), useBatch));
 
             final ArrayList<Message.CommunicationMessage> updatedMessages = new ArrayList<>(list.size());
             for (Message.CommunicationMessage message : list) {
@@ -125,22 +135,26 @@ public class DatabaseSpeedTest {
 
             System.gc();
             final Stopwatch stopwatch2 = Stopwatch.createStarted();
-            for (Message.CommunicationMessage message : updatedMessages) {
-                database.updateMessage(message);
+            if (useBatch) {
+                database.updateMessages(updatedMessages);
+            } else {
+                for (Message.CommunicationMessage message : updatedMessages) {
+                    database.updateMessage(message);
+                }
             }
-            Log.i(TAG, String.format("testSpeed - %s update %d: %s", dbName, writeSample, stopwatch2.toString()));
+            Log.i(TAG, String.format("testSpeed - %s update %d: %s, inBatch: %s", dbName, writeSample, stopwatch2.toString(), useBatch));
 
             System.gc();
             final Stopwatch stopwatch3 = Stopwatch.createStarted();
             final Database.MessageResult first = database.getMessageResult("conversation10", null, 100);
-            Log.i(TAG, String.format("testSpeed - %s read first %d: %s", dbName, readSample, stopwatch3.toString()));
+            Log.i(TAG, String.format("testSpeed - %s read first %d: %s, inBatch: %s", dbName, readSample, stopwatch3.toString(), useBatch));
             assert_().that(first.getMessages()).hasSize(100);
             assert_().that(first.getNextToken()).isNotNull();
 
             System.gc();
             final Stopwatch stopwatch4 = Stopwatch.createStarted();
             final Database.MessageResult second = database.getMessageResult("conversation10", first, 100);
-            Log.i(TAG, String.format("testSpeed - %s read second %d: %s", dbName, readSample, stopwatch4.toString()));
+            Log.i(TAG, String.format("testSpeed - %s read second %d: %s, inBatch: %s", dbName, readSample, stopwatch4.toString(), useBatch));
             assert_().that(second.getMessages()).hasSize(100);
             assert_().that(second.getNextToken()).isNotNull();
         } finally {

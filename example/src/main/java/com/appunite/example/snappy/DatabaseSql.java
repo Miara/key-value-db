@@ -207,6 +207,32 @@ public class DatabaseSql implements Database {
     }
 
     @Override
+    public void addMessages(@Nonnull List<Message.CommunicationMessage> messages) {
+        writableDatabase.beginTransaction();
+        try {
+            for (Message.CommunicationMessage message : messages) {
+                addMessage(message);
+            }
+            writableDatabase.setTransactionSuccessful();
+        } finally {
+            writableDatabase.endTransaction();
+        }
+    }
+
+    @Override
+    public void updateMessages(@Nonnull List<Message.CommunicationMessage> messages) {
+        writableDatabase.beginTransaction();
+        try {
+            for (Message.CommunicationMessage message : messages) {
+                updateMessage(message);
+            }
+            writableDatabase.setTransactionSuccessful();
+        } finally {
+            writableDatabase.endTransaction();
+        }
+    }
+
+    @Override
     public void close() {
         writableDatabase.close();
     }

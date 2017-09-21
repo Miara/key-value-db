@@ -14,7 +14,7 @@ dependencies {
 
     compile "javax.annotation:javax.annotation-api:1.2"
     compile "com.google.code.findbugs:jsr305:2.0.1"
-    compile 'com.appunite:lib-leveldb-jni:0.0.5'
+    compile 'com.appunite:lib-leveldb-jni:0.0.6'
 
     androidTestCompile 'com.google.truth:truth:0.25'
     androidTestCompile 'com.android.support.test:runner:0.3'

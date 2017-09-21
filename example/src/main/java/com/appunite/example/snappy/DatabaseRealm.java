@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmObject;
 import io.realm.RealmResults;
 
 public class DatabaseRealm implements Database {
@@ -96,24 +97,48 @@ public class DatabaseRealm implements Database {
     @Override
     public void addMessage(@Nonnull Message.CommunicationMessage message) {
         realm.beginTransaction();
+        final RealmMessage realmMessage = createMessage(message);
+        realm.copyToRealm(realmMessage);
+        realm.commitTransaction();
+    }
+
+    @Nonnull
+    private RealmMessage createMessage(@Nonnull Message.CommunicationMessage message) {
         final RealmMessage realmMessage = new RealmMessage();
         realmMessage.setData(message.toByteArray());
         realmMessage.setId(ByteUtils.toString(message.getId()));
         realmMessage.setConversationId(message.getConversationId());
         realmMessage.setCreatedAt(message.getCreatedAtMillis());
-        realm.copyToRealm(realmMessage);
-        realm.commitTransaction();
+        return realmMessage;
     }
 
     @Override
     public void updateMessage(@Nonnull Message.CommunicationMessage message) {
         realm.beginTransaction();
-        final RealmMessage realmMessage = new RealmMessage();
-        realmMessage.setData(message.toByteArray());
-        realmMessage.setId(ByteUtils.toString(message.getId()));
-        realmMessage.setConversationId(message.getConversationId());
-        realmMessage.setCreatedAt(message.getCreatedAtMillis());
+        final RealmMessage realmMessage = createMessage(message);
         realm.copyToRealmOrUpdate(realmMessage);
+        realm.commitTransaction();
+    }
+
+    @Override
+    public void addMessages(@Nonnull List<Message.CommunicationMessage> messages) {
+        realm.beginTransaction();
+        final List<RealmObject> operations = new ArrayList<>(messages.size());
+        for (Message.CommunicationMessage message : messages) {
+            operations.add(createMessage(message));
+        }
+        realm.copyToRealm(operations);
+        realm.commitTransaction();
+    }
+
+    @Override
+    public void updateMessages(@Nonnull List<Message.CommunicationMessage> messages) {
+        realm.beginTransaction();
+        final List<RealmObject> operations = new ArrayList<>(messages.size());
+        for (Message.CommunicationMessage message : messages) {
+            operations.add(createMessage(message));
+        }
+        realm.copyToRealmOrUpdate(operations);
         realm.commitTransaction();
     }
 
