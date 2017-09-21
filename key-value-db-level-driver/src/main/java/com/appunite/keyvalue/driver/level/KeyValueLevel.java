@@ -23,6 +23,7 @@ import com.appunite.leveldb.KeyNotFoundException;
 import com.appunite.leveldb.LevelDB;
 import com.appunite.leveldb.LevelDBException;
 import com.appunite.leveldb.LevelIterator;
+import com.appunite.leveldb.WriteBatch;
 import com.google.protobuf.ByteString;
 
 import java.io.File;
@@ -87,6 +88,60 @@ public class KeyValueLevel implements KeyValue {
             db.delete(key.toByteArray());
         } catch (LevelDBException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Nonnull
+    @Override
+    public Batch newBatch() {
+        return new BatchLevel(db);
+    }
+
+    private static class BatchLevel implements Batch {
+
+        @Nonnull
+        private final LevelDB keyValueLevel;
+        @Nonnull
+        private final WriteBatch writeBatch;
+
+        BatchLevel(@Nonnull LevelDB keyValueLevel) {
+            this.keyValueLevel = keyValueLevel;
+            writeBatch = new WriteBatch();
+        }
+
+        @Override
+        public void put(@Nonnull ByteString key, @Nonnull ByteString value) {
+            Preconditions.checkNotNull(key);
+            Preconditions.checkNotNull(value);
+            try {
+                writeBatch.putBytes(key.toByteArray(), value.toByteArray());
+            } catch (LevelDBException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public void del(@Nonnull ByteString key) {
+            Preconditions.checkNotNull(key);
+            try {
+                writeBatch.delete(key.toByteArray());
+            } catch (LevelDBException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public void clear() {
+            writeBatch.clear();
+        }
+
+        @Override
+        public void write() {
+            try {
+                keyValueLevel.write(writeBatch);
+            } catch (LevelDBException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

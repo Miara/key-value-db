@@ -91,6 +91,13 @@ public class KeyValueSnappy implements KeyValue {
 
     @Nonnull
     @Override
+    public Batch newBatch() {
+        // SnappyDb does not include batching so we will fake them
+        return new FakeBatch(this);
+    }
+
+    @Nonnull
+    @Override
     public ByteString getBytes(@Nonnull ByteString key) throws NotFoundException {
         Preconditions.checkNotNull(key);
         try {

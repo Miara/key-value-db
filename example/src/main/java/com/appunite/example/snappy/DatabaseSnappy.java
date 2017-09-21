@@ -16,6 +16,7 @@
 
 package com.appunite.example.snappy;
 
+import com.appunite.keyvalue.EditOperations;
 import com.appunite.keyvalue.KeyGenerator;
 import com.appunite.keyvalue.KeyValue;
 import com.appunite.keyvalue.NotFoundException;
@@ -72,31 +73,61 @@ public class DatabaseSnappy implements Database {
         }
     }
 
-    @Override
-    public void addMessage(@Nonnull Message.CommunicationMessage message) {
+    private void addMessageOperation(@Nonnull EditOperations operations, @Nonnull Message.CommunicationMessage message) {
         final ByteString messageKey = getMessageKey(message.getId());
         final ByteString key = getMessageConversationIndex(message);
-        keyValue.put(key, messageKey);
-        keyValue.put(messageKey, message.toByteString());
+        operations.put(key, messageKey);
+        operations.put(messageKey, message.toByteString());
     }
 
-    @Override
-    public void updateMessage(@Nonnull Message.CommunicationMessage message) {
+    private void deleteMessageOperation(@Nonnull EditOperations operations, @Nonnull Message.CommunicationMessage message) {
         final Message.CommunicationMessage oldMessage;
         try {
             oldMessage = getMessage(message.getId());
         } catch (NotFoundException e) {
             throw new RuntimeException(e);
         }
-        keyValue.del(getMessageConversationIndex(oldMessage));
-        addMessage(message);
+        operations.del(getMessageConversationIndex(oldMessage));
+        addMessageOperation(operations, message);
+    }
+
+    @Override
+    public void addMessage(@Nonnull Message.CommunicationMessage message) {
+        final KeyValue.Batch batch = keyValue.newBatch();
+        addMessageOperation(batch, message);
+        batch.write();
+    }
+
+    @Override
+    public void updateMessage(@Nonnull Message.CommunicationMessage message) {
+        final KeyValue.Batch batch = keyValue.newBatch();
+        deleteMessageOperation(batch, message);
+        batch.write();
+    }
+
+    @Override
+    public void addMessages(@Nonnull List<Message.CommunicationMessage> messages) {
+        final KeyValue.Batch batch = keyValue.newBatch();
+        for (Message.CommunicationMessage message : messages) {
+            addMessageOperation(batch, message);
+        }
+        batch.write();
+    }
+
+    @Override
+    public void updateMessages(@Nonnull List<Message.CommunicationMessage> messages) {
+        final KeyValue.Batch batch = keyValue.newBatch();
+        for (Message.CommunicationMessage message : messages) {
+            deleteMessageOperation(batch, message);
+        }
+        batch.write();
     }
 
     private final KeyGenerator keyGenerator = new KeyGenerator();
 
-    public static final byte[] MESSAGE = "message".getBytes();
-    public static final byte[] CONVERSATION = "conversation".getBytes();
-    public static final byte[] CREATED_AT = "created_at".getBytes();
+    private static final byte[] MESSAGE = "message".getBytes();
+    private static final byte[] CONVERSATION = "conversation".getBytes();
+    private static final byte[] CREATED_AT = "created_at".getBytes();
 
     @Nonnull
     private ByteString getMessageConversationIndex(@Nonnull String conversationLocalId) {

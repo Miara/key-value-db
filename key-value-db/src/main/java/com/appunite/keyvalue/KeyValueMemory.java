@@ -32,7 +32,7 @@ import javax.inject.Inject;
 import static com.appunite.keyvalue.internal.Preconditions.checkNotNull;
 
 public class KeyValueMemory implements KeyValue {
-    public static final Comparator<ByteString> COMPARATOR = new Comparator<ByteString>() {
+    static final Comparator<ByteString> COMPARATOR = new Comparator<ByteString>() {
         @Override
         public int compare(ByteString o1, ByteString o2) {
             final int size1 = o1.size();
@@ -72,6 +72,13 @@ public class KeyValueMemory implements KeyValue {
     public void del(@Nonnull ByteString key) {
         checkNotNull(key);
         map.remove(key);
+    }
+
+    @Nonnull
+    @Override
+    public Batch newBatch() {
+        // Memory implementation does not include real batching
+        return new FakeBatch(this);
     }
 
     @Nonnull

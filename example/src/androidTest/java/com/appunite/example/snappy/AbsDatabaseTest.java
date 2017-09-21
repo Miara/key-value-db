@@ -30,6 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -111,6 +112,35 @@ public abstract class AbsDatabaseTest {
                 .setMessage("message2")
                 .setCreatedAtMillis(123)
                 .build());
+
+        final Database.MessageResult messages1 = database.getMessageResult("conversation2", null, 1);
+        final Database.MessageResult messages2 = database.getMessageResult("conversation2", messages1, 1);
+
+        assert_().that(messages1.getMessages().size()).isEqualTo(1);
+        assert_().that(messages2.getMessages().size()).isEqualTo(1);
+
+        final String firstTitle = messages1.getMessages().get(0).getMessage();
+        final String secondTitle = messages2.getMessages().get(0).getMessage();
+        final ImmutableSet<String> test = ImmutableSet.of(firstTitle, secondTitle);
+        assert_().that((Iterable<String>)test).isEqualTo(ImmutableSet.of("message1", "message2"));
+    }
+
+    @Test
+    public void testWhenThereAreTwoMessagesWithSameIdBatch_returnBooth() throws Exception {
+        final List<Message.CommunicationMessage> messages = new ArrayList<>();
+        messages.add(Message.CommunicationMessage.newBuilder()
+                .setId(idGenerator.newId())
+                .setConversationId("conversation2")
+                .setMessage("message1")
+                .setCreatedAtMillis(123)
+                .build());
+        messages.add(Message.CommunicationMessage.newBuilder()
+                .setId(idGenerator.newId())
+                .setConversationId("conversation2")
+                .setMessage("message2")
+                .setCreatedAtMillis(123)
+                .build());
+        database.addMessages(messages);
 
         final Database.MessageResult messages1 = database.getMessageResult("conversation2", null, 1);
         final Database.MessageResult messages2 = database.getMessageResult("conversation2", messages1, 1);
@@ -233,6 +263,48 @@ public abstract class AbsDatabaseTest {
         assert_().that(messages).hasSize(1);
         assert_().that(messages.get(0).getMessage()).isEqualTo("new");
         assert_().that(messages.get(0).getCreatedAtMillis()).isEqualTo(124);
+    }
+
+    @Test
+    public void testAfterUpdateTwoMessagesInBatch_returnBoth() throws Exception {
+        final ByteString id1 = idGenerator.newId();
+        final Message.CommunicationMessage message1 = Message.CommunicationMessage.newBuilder()
+                .setId(id1)
+                .setConversationId("conversation2")
+                .setMessage("old")
+                .setCreatedAtMillis(123)
+                .build();
+        database.addMessage(message1);
+
+        final ByteString id2 = idGenerator.newId();
+        final Message.CommunicationMessage message2 = Message.CommunicationMessage.newBuilder()
+                .setId(id2)
+                .setConversationId("conversation2")
+                .setMessage("old")
+                .setCreatedAtMillis(125)
+                .build();
+        database.addMessage(message2);
+
+        final List<Message.CommunicationMessage> updateMessages = new ArrayList<>();
+        updateMessages.add(message1.toBuilder()
+                .setMessage("new1")
+                .setCreatedAtMillis(124)
+                .build());
+        updateMessages.add(message2.toBuilder()
+                .setMessage("new2")
+                .setCreatedAtMillis(126)
+                .build());
+        database.updateMessages(updateMessages);
+
+        final List<Message.CommunicationMessage> messages = database
+                .getMessageResult("conversation2", null, 100)
+                .getMessages();
+
+        assert_().that(messages).hasSize(2);
+        assert_().that(messages.get(0).getMessage()).isEqualTo("new1");
+        assert_().that(messages.get(0).getCreatedAtMillis()).isEqualTo(124);
+        assert_().that(messages.get(1).getMessage()).isEqualTo("new2");
+        assert_().that(messages.get(1).getCreatedAtMillis()).isEqualTo(126);
     }
 
     @Test(expected = NotFoundException.class)

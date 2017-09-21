@@ -67,5 +67,9 @@ public interface Database {
 
     void updateMessage(@Nonnull CommunicationMessage message);
 
+    void addMessages(@Nonnull List<CommunicationMessage> messages);
+
+    void updateMessages(@Nonnull List<CommunicationMessage> messages);
+
     void close();
 }
