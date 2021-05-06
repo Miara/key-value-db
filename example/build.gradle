@@ -1,11 +1,6 @@
 
 apply plugin: 'com.android.application'
 
-configurations.all {
-    resolutionStrategy.force 'com.android.support:support-annotations:23.0.1'
-    resolutionStrategy.force 'com.google.guava:guava:18.0'
-}
-
 dependencies {
 
     // Projects
@@ -20,7 +15,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'io.realm:realm-android:0.83.0-SNAPSHOT'
-    implementation 'com.google.guava:guava:24.1-jre'
+    implementation 'com.google.guava:guava:30.1.1-android'
 
     androidTestImplementation 'androidx.test:core:1.3.0'
     androidTestImplementation 'androidx.test:runner:1.3.0'

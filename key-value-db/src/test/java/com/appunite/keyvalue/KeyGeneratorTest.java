@@ -62,7 +62,7 @@ public class KeyGeneratorTest {
                     .addField("created_at".getBytes(), value)
                     .buildQuery();
             final int compared = KeyValueMemory.COMPARATOR.compare(message1, message2);
-            assert_().that(compared).named("For value: " + value).isLessThan(0);
+            assert_().that(compared).isLessThan(0);
         }
     }
 
@@ -79,7 +79,7 @@ public class KeyGeneratorTest {
                     .addField("created_at".getBytes(), value)
                     .buildQuery();
             final int compared = KeyValueMemory.COMPARATOR.compare(message1, message2);
-            assert_().that(compared).named("For value: " + value).isGreaterThan(0);
+            assert_().that(compared).isGreaterThan(0);
         }
     }
 

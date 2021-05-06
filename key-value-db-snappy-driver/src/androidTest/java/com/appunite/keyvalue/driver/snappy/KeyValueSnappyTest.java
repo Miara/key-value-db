@@ -17,9 +17,10 @@
 package com.appunite.keyvalue.driver.snappy;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.MediumTest;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.appunite.keyvalue.KeyValue;
 import com.google.protobuf.ByteString;
@@ -45,7 +46,7 @@ public class KeyValueSnappyTest {
 
     @Before
     public void setUp() throws Exception {
-        final Context targetContext = InstrumentationRegistry.getTargetContext();
+        final Context targetContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         keyValue = KeyValueSnappy.create(targetContext, String.format(Locale.US, "Db:%d.db", new Random().nextLong()));
     }
 

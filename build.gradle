@@ -1,11 +1,11 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
+        google()
         maven { url 'https://maven-central.storage.googleapis.com' }
         maven { url 'https://maven.google.com' }
         mavenCentral()
         maven {url 'https://commondatastorage.googleapis.com/maven-repository/'}
-        google()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.3'
@@ -21,9 +21,9 @@ allprojects {
     }
 
     repositories {
+        google()
         mavenCentral()
         maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local' }
         maven { url 'https://commondatastorage.googleapis.com/maven-repository/' }
-        google()
     }
 }

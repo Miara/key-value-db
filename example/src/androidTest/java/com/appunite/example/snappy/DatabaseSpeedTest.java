@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assert_;
 
 @RunWith(AndroidJUnit4.class)
@@ -104,7 +105,7 @@ public class DatabaseSpeedTest {
         }
         Log.i(TAG, String.format("testSpeed - deserialize %d - %s", sampleSize, stopwatch2.toString()));
 
-        assert_().that(messages.size()).isEqualTo(out2.size());
+        assertThat(messages.size()).isEqualTo(out2.size());
     }
 
     private void runSpeedTest(String dbName, int databaseType, int writeSample, int readSample, boolean useBatch) throws Exception {
@@ -149,15 +150,15 @@ public class DatabaseSpeedTest {
             final Stopwatch stopwatch3 = Stopwatch.createStarted();
             final Database.MessageResult first = database.getMessageResult("conversation10", null, 100);
             Log.i(TAG, String.format("testSpeed - %s read first %d: %s, inBatch: %s", dbName, readSample, stopwatch3.toString(), useBatch));
-            assert_().that(first.getMessages()).hasSize(100);
-            assert_().that(first.getNextToken()).isNotNull();
+            assertThat(first.getMessages()).hasSize(100);
+            assertThat(first.getNextToken()).isNotNull();
 
             System.gc();
             final Stopwatch stopwatch4 = Stopwatch.createStarted();
             final Database.MessageResult second = database.getMessageResult("conversation10", first, 100);
             Log.i(TAG, String.format("testSpeed - %s read second %d: %s, inBatch: %s", dbName, readSample, stopwatch4.toString(), useBatch));
-            assert_().that(second.getMessages()).hasSize(100);
-            assert_().that(second.getNextToken()).isNotNull();
+            assertThat(second.getMessages()).hasSize(100);
+            assertThat(second.getNextToken()).isNotNull();
         } finally {
             database.close();
         }
