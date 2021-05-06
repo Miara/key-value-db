@@ -17,10 +17,11 @@
 package com.appunite.example.snappy;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.LargeTest;
+import androidx.annotation.NonNull;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
+
 import android.util.Log;
 
 import com.appunite.keyvalue.IdGenerator;
@@ -107,7 +108,7 @@ public class DatabaseSpeedTest {
     }
 
     private void runSpeedTest(String dbName, int databaseType, int writeSample, int readSample, boolean useBatch) throws Exception {
-        final Context targetContext = InstrumentationRegistry.getTargetContext();
+        final Context targetContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         final Database database = DatabaseProvider.provide(targetContext, databaseType, UUID.randomUUID().toString());
         try {
             addSomeNotImportantElements(database, writeSample);

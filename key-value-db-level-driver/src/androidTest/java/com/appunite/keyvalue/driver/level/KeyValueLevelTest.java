@@ -16,10 +16,12 @@
 
 package com.appunite.keyvalue.driver.level;
 
+import android.app.Instrumentation;
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.MediumTest;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.appunite.keyvalue.KeyValue;
 import com.google.protobuf.ByteString;
@@ -46,11 +48,11 @@ public class KeyValueLevelTest {
 
     @Before
     public void setUp() throws Exception {
-        final Context targetContext = InstrumentationRegistry.getTargetContext();
+        final Context targetContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         final String format = String.format(Locale.US, "Db:%d.db", new Random().nextLong());
         final File databasePath = targetContext.getDatabasePath(format);
         deleteRecursive(databasePath);
-        keyValue = KeyValueLevel.create(databasePath);
+        keyValue = KeyValueLevel.create(targetContext, databasePath);
     }
 
     @After

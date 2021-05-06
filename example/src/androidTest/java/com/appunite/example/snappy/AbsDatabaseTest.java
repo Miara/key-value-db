@@ -17,7 +17,6 @@
 package com.appunite.example.snappy;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
 
 import com.appunite.keyvalue.IdGenerator;
 import com.appunite.keyvalue.NotFoundException;
@@ -25,6 +24,8 @@ import com.example.myapplication.Message;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.ByteString;
+
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -43,7 +44,7 @@ public abstract class AbsDatabaseTest {
 
     @Before
     public void setUp() throws Exception {
-        final Context targetContext = InstrumentationRegistry.getTargetContext();
+        final Context targetContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         database = DatabaseProvider.provide(targetContext, getDatabase(), UUID.randomUUID().toString());
     }
 

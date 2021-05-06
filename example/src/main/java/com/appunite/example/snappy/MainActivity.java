@@ -16,20 +16,20 @@
 
 package com.appunite.example.snappy;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
 
 import com.appunite.keyvalue.KeyValue;
 import com.appunite.keyvalue.NotFoundException;
 import com.appunite.keyvalue.driver.level.KeyValueLevel;
-import com.appunite.leveldb.LevelDBException;
 import com.example.myapplication.Message;
 import com.google.protobuf.ByteString;
+import com.snappydb.SnappydbException;
 
 import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
         final KeyValue keyValue;
         try {
-            keyValue = KeyValueLevel.create(getDatabasePath("my.leveldb"));
-        } catch (IOException | LevelDBException e) {
+            keyValue = KeyValueLevel.create(this, getDatabasePath("my.leveldb"));
+        } catch (IOException | SnappydbException e) {
             throw new RuntimeException(e);
         }
         final DatabaseSnappy databaseSnappy = new DatabaseSnappy(keyValue);

@@ -35,7 +35,7 @@ public class DatabaseProvider {
             case 3:
                 return new DatabaseSnappy(new KeyValueMemory());
             case 4: {
-                return new DatabaseSnappy(KeyValueLevel.create(context.getDatabasePath(name)));
+                return new DatabaseSnappy(KeyValueLevel.create(context, context.getDatabasePath(name)));
             }
             default:
                 throw new RuntimeException("Unknown database type: " + databaseType);

@@ -16,8 +16,8 @@
 
 package com.appunite.example.snappy;
 
-import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.MediumTest;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 
 import org.junit.runner.RunWith;
 
